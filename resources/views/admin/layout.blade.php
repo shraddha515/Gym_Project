@@ -20,7 +20,7 @@
         :root {
             --bg-gradient: linear-gradient(135deg, #243949 0%, #517fa4 100%);
             --sidebar-gradient: linear-gradient(180deg, #0f2027 0%, #203a43 100%);
-            --topbar-gradient: linear-gradient(90deg, #ff512f 0%, #dd2476 100%);
+            --topbar-gradient: linear-gradient(45deg, #5056b5 0%, #60557f 100%);
             --accent-gradient: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
             --text-light: #e0e0e0;
             --text-dark: #374151;
@@ -55,17 +55,39 @@
         }
 
         .sidebar .sidebar-header {
+            /* position: relative;
+        z-index: 1; */
+            /* background: rgba(255,255,255,0.85);  */
+            border-radius: 0px;
+            /* padding: 50px 35px;
+            width: 100%; */
+            max-width: 400px;
+            /* box-shadow: 0 15px 40px rgba(0,0,0,0.3); */
             text-align: center;
-            padding: 10px 0 30px;
+            color: #000;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .sidebar .sidebar-header h3 {
             font-weight: 700;
-            color: #fff;
-            text-transform: uppercase;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            margin-top: 20px;
+            color: #fdfdfd;
+            text-shadow: 0 0 5px #bcc4da;
             letter-spacing: 1px;
-            margin: 0;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
         }
 
         .sidebar-menu a {
@@ -174,13 +196,13 @@
             transition: margin-left 0.3s ease;
         }
 
-        /* .main-card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            min-height: calc(100vh - 120px);
-        } */
+        .main-card {
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+
+        }
 
         /* Media Queries for Responsiveness */
         @media (max-width: 991.98px) {
@@ -273,6 +295,25 @@
             font-size: 1rem;
             margin-right: 15px;
         }
+
+        .sidebar-close-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            /* light overlay */
+
+            padding: 8px;
+            width: 2px;
+            height: 10px;
+            opacity: 1 !important;
+            /* make it fully visible */
+            filter: invert(1);
+            /* makes the cross white */
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .sidebar-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
     </style>
 
     @yield('styles')
@@ -284,6 +325,10 @@
         <div class="sidebar-header">
             <h3>Gym-Suvidha</h3>
         </div>
+        <button class="btn-close d-lg-none sidebar-close-btn position-absolute top-0 end-0 m-2"
+            id="sidebar-close-btn"></button>
+
+
         <div class="sidebar-menu">
             @php
                 $user = Auth::user();
@@ -293,26 +338,23 @@
             @if ($user && $role === 'superadmin')
                 <a href="{{ route('superadmin.dashboard') }}" class="active"><i class="bi bi-speedometer2"></i>
                     SuperAdmin Dashboard</a>
-                
             @elseif($user && $role === 'owner')
-                <li class="nav-item">
-                    <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-                        href="#gymDashboardMenu" role="button" aria-expanded="false" aria-controls="gymDashboardMenu">
+                
+                    {{-- <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+                        href="#gymDashboardMenu" role="button" aria-expanded="false" aria-controls="gymDashboardMenu" >
                         <span><i class="bi bi-speedometer2"></i> Gym Dashboard</span>
                         <i class="bi bi-chevron-down small"></i>
-                    </a>
+                    </a> --}}
 
-                    <div class="collapse ps-4" id="gymDashboardMenu">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('gym.dashboard.members.filter') }}">
-                                    <i class="bi bi-clock-history me-2"></i> Expiring Members
-                                </a>
-                            </li>
+                    
                             
-                        </ul>
-                    </div>
-                </li>
+                                <a class="nav-link" href="{{ route('gym.dashboard.members.filter') }}">
+                                    <i class="bi bi-clock-history me-2"></i> Gym Dashboard
+                                </a>
+                            
+
+                        
+                
                 {{-- Members Dropdown --}}
                 <a class="sidebar-dropdown-toggle collapsed" data-bs-toggle="collapse" href="#members-collapse"
                     role="button" aria-expanded="false" aria-controls="members-collapse">
@@ -323,8 +365,8 @@
                         <i class="bi bi-list-ul"></i> Add Members
                     </a>
                     <a class="sidebar-dropdown-item" href="{{ route('gym.staff.index') }}">
-    <i class="bi bi-person-badge"></i> Staff Members
-</a>
+                        <i class="bi bi-person-badge"></i> Staff Members
+                    </a>
 
                 </div>
                 <a href="{{ route('gym.membership') }}"><i class="bi bi-people"></i> Membership Type</a>
@@ -377,6 +419,10 @@
                     $(this).addClass('active');
                 }
             });
+        });
+        // Close button functionality
+        $('#sidebar-close-btn').on('click', function() {
+            $('#sidebar').removeClass('active');
         });
     </script>
     @yield('scripts')

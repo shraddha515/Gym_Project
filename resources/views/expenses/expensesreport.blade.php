@@ -1,9 +1,9 @@
-@extends('admin.layout')
+{{-- @extends('admin.layout')
 
 @section('content')
 <div class="container py-4">
     <h3>Expenses Report</h3>
-    <form method="GET" action="{{ route('expenses.report') }}" class="row g-2 mb-3">
+    <form method="GET" action="{{ route('expenses.expensesreport') }}" class="row g-2 mb-3">
         <div class="col-md-3"><input type="date" name="from" value="{{ $from ?? '' }}" class="form-control"></div>
         <div class="col-md-3"><input type="date" name="to" value="{{ $to ?? '' }}" class="form-control"></div>
         <div class="col-md-2"><button class="btn btn-primary">Apply</button></div>
@@ -24,4 +24,4 @@
         </tbody>
     </table>
 </div>
-@endsection
+@endsection --}}

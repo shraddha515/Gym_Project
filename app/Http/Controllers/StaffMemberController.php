@@ -4,24 +4,37 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StaffMemberController extends Controller
 {
     public function index(Request $request)
     {
-        $staff = DB::table('staff_members')->get();
+        // Get the authenticated user and their gym_id
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
 
-        // If editing, get the staff info
+        // Fetch staff members associated with the current gym
+        $staff = DB::table('staff_members')->where('gym_id', $gym_id)->get();
+
+        // If editing, get the staff info, ensuring it belongs to the current gym
         $editStaff = null;
-        if($request->has('edit_id')){
-            $editStaff = DB::table('staff_members')->where('id', $request->edit_id)->first();
+        if ($request->has('edit_id')) {
+            $editStaff = DB::table('staff_members')
+                           ->where('gym_id', $gym_id)
+                           ->where('id', $request->edit_id)
+                           ->first();
         }
 
-        return view('gym.staff', compact('staff','editStaff'));
+        return view('gym.staff', compact('staff', 'editStaff'));
     }
 
     public function store(Request $request)
     {
+        // Get the authenticated user and their gym_id
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+        
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'type' => 'required|string|in:Personal Trainer,Nutritionist,Admin',
@@ -34,14 +47,19 @@ class StaffMemberController extends Controller
 
         $validated['created_at'] = now();
         $validated['updated_at'] = now();
+        $validated['gym_id'] = $gym_id; // Add the gym_id to the validated data
 
         DB::table('staff_members')->insert($validated);
 
-        return redirect()->route('gym.staff.index')->with('success','Staff member added successfully!');
+        return redirect()->route('gym.staff.index')->with('success', 'Staff member added successfully!');
     }
 
     public function update(Request $request, $id)
     {
+        // Get the authenticated user and their gym_id
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'type' => 'required|string|in:Personal Trainer,Nutritionist,Admin',
@@ -54,14 +72,27 @@ class StaffMemberController extends Controller
 
         $validated['updated_at'] = now();
 
-        DB::table('staff_members')->where('id',$id)->update($validated);
+        // Update the staff member, ensuring it belongs to the current gym
+        DB::table('staff_members')
+            ->where('gym_id', $gym_id)
+            ->where('id', $id)
+            ->update($validated);
 
-        return redirect()->route('gym.staff.index')->with('success','Staff member updated successfully!');
+        return redirect()->route('gym.staff.index')->with('success', 'Staff member updated successfully!');
     }
 
     public function destroy($id)
     {
-        DB::table('staff_members')->where('id',$id)->delete();
-        return redirect()->route('gym.staff.index')->with('success','Staff member deleted successfully!');
+        // Get the authenticated user and their gym_id
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
+        // Delete the staff member, ensuring it belongs to the current gym
+        DB::table('staff_members')
+            ->where('gym_id', $gym_id)
+            ->where('id', $id)
+            ->delete();
+
+        return redirect()->route('gym.staff.index')->with('success', 'Staff member deleted successfully!');
     }
 }

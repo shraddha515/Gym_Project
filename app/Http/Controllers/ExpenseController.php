@@ -13,6 +13,9 @@ class ExpenseController extends Controller
     // List + create form on same page
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
         $q = $request->input('q');
         $from = $request->input('from');
         $to = $request->input('to');
@@ -20,8 +23,8 @@ class ExpenseController extends Controller
         $page = max(1, (int) $request->input('page', 1));
         $offset = ($page - 1) * $perPage;
 
-        $bindings = [];
-        $where = "WHERE 1=1";
+        $bindings = [$gym_id];
+        $where = "WHERE gym_id = ?";
 
         if ($q) {
             $where .= " AND (category LIKE ? OR description LIKE ?)";
@@ -44,6 +47,7 @@ class ExpenseController extends Controller
         $countResult = DB::select($countSql, $bindings);
         $total = $countResult[0]->total ?? 0;
 
+        
         $sql = "SELECT * FROM expenses {$where} ORDER BY expense_date DESC, id DESC LIMIT ? OFFSET ?";
         $bindingsWithLimit = array_merge($bindings, [$perPage, $offset]);
         $expenses = DB::select($sql, $bindingsWithLimit);
@@ -64,13 +68,16 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
-        // validation
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
+        // Add more specific validation rules
         $v = Validator::make($request->all(), [
-            'category' => 'required|string|max:100',
-            'amount' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'expense_date' => 'required|date',
-            'payment_method' => 'nullable|string|max:50',
+            'category' => 'required|string|max:500', 
+            'amount' => 'required|numeric|min:0.01|decimal:0,2', // Enforce at least 0.01 and max 2 decimal places
+            'description' => 'nullable|string|max:500', // A more generous max length for descriptions
+            'expense_date' => 'required|date|before_or_equal:today', // Ensure the date is not in the future
+            'payment_method' => 'nullable|string|max:50|alpha', // 'alpha' ensures only letters
         ]);
 
         if ($v->fails()) {
@@ -85,16 +92,20 @@ class ExpenseController extends Controller
         $created_by = Auth::id() ?? null;
 
         // Using DB::insert with bindings (safe)
-        DB::insert("INSERT INTO expenses (category, amount, description, expense_date, payment_method, created_by, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())",
-                    [$category, $amount, $description, $expense_date, $payment_method, $created_by]);
+        DB::insert("INSERT INTO expenses (gym_id, category, amount, description, expense_date, payment_method, created_by, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+                    [$gym_id, $category, $amount, $description, $expense_date, $payment_method, $created_by]);
 
         return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
     }
 
+
     public function edit($id)
     {
-        $row = DB::select("SELECT * FROM expenses WHERE id = ? LIMIT 1", [$id]);
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
+        $row = DB::select("SELECT * FROM expenses WHERE id = ? AND gym_id = ? LIMIT 1", [$id, $gym_id]);
         if (empty($row)) {
             return redirect()->route('expenses.index')->with('error', 'Expense not found.');
         }
@@ -102,28 +113,35 @@ class ExpenseController extends Controller
         return view('expenses.edit', ['expense' => $expense]);
     }
 
+
+    
+
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
+        // Apply the same specific validation rules as the store method
         $v = Validator::make($request->all(), [
-            'category' => 'required|string|max:100',
-            'amount' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'expense_date' => 'required|date',
-            'payment_method' => 'nullable|string|max:50',
+            'category' => 'required|string|max:500',
+            'amount' => 'required|numeric|min:0.01|decimal:0,2',
+            'description' => 'nullable|string|max:500',
+            'expense_date' => 'required|date|before_or_equal:today',
+            'payment_method' => 'nullable|string|max:50|alpha',
         ]);
 
         if ($v->fails()) {
             return redirect()->back()->withErrors($v)->withInput();
         }
-
-        $updated = DB::update("UPDATE expenses SET category = ?, amount = ?, description = ?, expense_date = ?, payment_method = ?, updated_at = NOW() WHERE id = ?",
+        $updated = DB::update("UPDATE expenses SET category = ?, amount = ?, description = ?, expense_date = ?, payment_method = ?, updated_at = NOW() WHERE id = ? AND gym_id = ?",
             [
                 $request->input('category'),
                 $request->input('amount'),
                 $request->input('description'),
                 $request->input('expense_date'),
                 $request->input('payment_method'),
-                $id
+                $id,
+                $gym_id
             ]);
 
         return redirect()->route('expenses.index')->with('success', 'Expense updated.');
@@ -131,20 +149,26 @@ class ExpenseController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+        
         // simple deletion
-        DB::delete("DELETE FROM expenses WHERE id = ?", [$id]);
+        DB::delete("DELETE FROM expenses WHERE id = ? AND gym_id = ?", [$id, $gym_id]);
         return redirect()->route('expenses.index')->with('success', 'Expense deleted.');
     }
 
-    // ----- Future features: basic report filter
-    public function report(Request $request)
+    // ----- Future features: basic expensesreport filter
+    public function expensesreport(Request $request)
     {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
         // This returns aggregated data grouped by category and date range
         $from = $request->input('from');
         $to = $request->input('to');
 
-        $bindings = [];
-        $where = "WHERE 1=1";
+        $bindings = [$gym_id];
+        $where = "WHERE gym_id = ?";
         if ($from) { $where .= " AND expense_date >= ?"; $bindings[] = $from; }
         if ($to) { $where .= " AND expense_date <= ?"; $bindings[] = $to; }
 
@@ -155,17 +179,20 @@ class ExpenseController extends Controller
                 ORDER BY total_amount DESC";
         $rows = DB::select($sql, $bindings);
 
-        return view('expenses.report', ['rows' => $rows, 'from' => $from, 'to' => $to]);
+        return view('expenses.expensesreport', ['rows' => $rows, 'from' => $from, 'to' => $to]);
     }
 
     // export CSV (simple)
     public function exportCsv(Request $request)
     {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+
         $from = $request->input('from');
         $to = $request->input('to');
 
-        $bindings = [];
-        $where = "WHERE 1=1";
+        $bindings = [$gym_id];
+        $where = "WHERE gym_id = ?";
         if ($from) { $where .= " AND expense_date >= ?"; $bindings[] = $from; }
         if ($to) { $where .= " AND expense_date <= ?"; $bindings[] = $to; }
 

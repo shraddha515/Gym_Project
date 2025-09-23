@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -15,38 +16,44 @@ class MemberController extends Controller
      * Display a listing of the members.
      * Includes search and sorting functionality.
      */
-  public function index(Request $request)
+ public function index(Request $request)
 {
-    $query = \App\Models\Member::query();
+    // Get the authenticated user and their gym_id
+    $user = Auth::user();
+    $gym_id = $user->gym_id;
 
-    // Handle search
+    // Start a DB query builder for members
+    $query = DB::table('members')
+        ->where('members.gym_id', $gym_id) // ✅ gym_id condition on members table
+        ->leftJoin('staff_members', 'members.assigned_staff_id', '=', 'staff_members.id')
+        ->select('members.*', 'staff_members.name as pt_name');
+
+    // Handle search filter
     if ($request->filled('search')) {
         $search = $request->input('search');
-        $query->where(function($q) use ($search) {
-            $q->where('first_name', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('member_id', 'like', "%{$search}%")
-              ->orWhere('mobile_number', 'like', "%{$search}%");
+        $query->where(function ($q) use ($search) {
+            $q->where('members.first_name', 'like', "%{$search}%")
+              ->orWhere('members.last_name', 'like', "%{$search}%")
+              ->orWhere('members.member_id', 'like', "%{$search}%")
+              ->orWhere('members.mobile_number', 'like', "%{$search}%");
         });
     }
 
-    // Optional: handle sorting
-    $sort = $request->get('sort', 'member_id');
+    // Handle sorting (default: members.id)
+    $sort = $request->get('sort', 'members.id');
     $direction = $request->get('direction', 'asc');
 
+    // Apply sorting and paginate
     $members = $query->orderBy($sort, $direction)->paginate(10)->withQueryString();
-$members = DB::table('members')
-    ->leftJoin('staff_members', 'members.assigned_staff_id', '=', 'staff_members.id')
-    ->select('members.*', 'staff_members.name as pt_name')
-    ->orderBy('members.id', 'desc')
-    ->get();
 
-return view('gym.members.index', compact('members'));
+    return view('gym.members.index', compact('members'));
 }
-
 
     public function create()
 {
+     $user = Auth::user();
+    $gym_id = $user->gym_id;
+
     // Get last member_id
     $lastMember = DB::table('members')->orderByDesc('id')->first();
     $memberId = 'MS' . str_pad(($lastMember->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
@@ -73,6 +80,11 @@ return view('gym.members.create', compact('memberId', 'membershipTypes', 'pts'))
 
 public function store(Request $request)
 {
+
+    $user = Auth::user();
+    $gym_id = $user->gym_id;
+
+
     $validated = $request->validate([
         'first_name' => 'required|string|max:255',
         'last_name' => 'nullable|string|max:255',
@@ -101,6 +113,8 @@ public function store(Request $request)
 
     unset($validated['photo']); // important
 
+    $validated['gym_id'] = $gym_id;
+
     $validated['created_at'] = now();
     $validated['updated_at'] = now();
 
@@ -121,7 +135,10 @@ public function store(Request $request)
 
     public function show($id)
     {
-        $member = DB::table('members')->where('id', $id)->first();
+         $user = Auth::user();
+    $gym_id = $user->gym_id;
+
+        $member = DB::table('members')->where('gym_id', $gym_id)->first();
         if (!$member) return redirect()->route('gym.members.index')->with('error', 'Member not found.');
 
         return view('gym.members.show', compact('member'));
@@ -132,6 +149,9 @@ public function store(Request $request)
 
 public function edit($id)
 {
+     $user = Auth::user();
+    $gym_id = $user->gym_id;
+
     $member = DB::table('members')->where('id', $id)->first();
 
     if (!$member) {
@@ -157,6 +177,10 @@ public function edit($id)
 
 public function update(Request $request, $id)
 {
+
+ $user = Auth::user();
+    $gym_id = $user->gym_id;
+
     $validated = $request->validate([
         'first_name' => 'required|string|max:255',
         'last_name' => 'nullable|string|max:255',
@@ -284,4 +308,7 @@ public function update(Request $request, $id)
 
         return $pdf->download('members_' . now()->format('Y-m-d') . '.pdf');
     }
+
+
+    
 }

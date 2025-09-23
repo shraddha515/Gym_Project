@@ -1,139 +1,361 @@
 @extends('admin.layout')
 
 @section('content')
-<div class="container py-4">
+    <style>
+        /* Report Cards */
+        .report-card {
+            border: 2px solid #3b82f6;
+            /* theme border color (blue shade) */
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+        }
 
-    <h2 class="mb-3">Gym Reports</h2>
-<!-- Cards Section -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-3 mb-2">
-            <div class="card p-3 shadow-sm">
-                <h6>Total Fees Collected</h6>
-                <h4>₹{{ number_format($totalFees,2) }}</h4>
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Labels */
+        .report-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6b7280;
+            /* muted gray */
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Values */
+        .report-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #111827;
+            /* dark text */
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .report-card {
+                padding: 12px;
+            }
+
+            .report-label {
+                font-size: 0.8rem;
+            }
+
+            .report-value {
+                font-size: 1rem;
+            }
+        }
+
+        /* Compact filter form */
+        .report-filter .form-control,
+        .report-filter .form-select {
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border: 1px solid #3b82f6;
+            /* theme border color */
+            border-radius: 6px;
+        }
+
+        .report-filter .form-label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #ffffffff;
+            /* muted dark */
+        }
+
+        .report-filter .btn-primaryy {
+            background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+            /* theme blue */
+            border-color: #3b82f6;
+            font-size: 0.85rem;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .report-filter .btn-primaryy:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+
+            .report-filter .form-control,
+            .report-filter .form-select {
+                font-size: 0.8rem;
+                padding: 3px 6px;
+            }
+
+            .report-filter .btn-primary {
+                font-size: 0.8rem;
+                padding: 5px;
+            }
+        }
+    </style>
+    <div class="container py-4 px-4">
+
+    <h2 class="mb-3 @if(!request()->has('pdf')) text-white @endif">Gym Reports</h2>
+
+    @if(!request()->has('pdf'))
+    <!-- Cards Section -->
+    <div class="row mb-4 g-3">
+        <div class="col-12 col-md-3">
+            <div class="report-card">
+                <h6 class="report-label">Total Fees Collected</h6>
+                <h4 class="report-value">₹{{ number_format($totalFees, 2) }}</h4>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-2">
-            <div class="card p-3 shadow-sm">
-                <h6>Total Expenses</h6>
-                <h4>₹{{ number_format($totalExpenses,2) }}</h4>
+        <div class="col-12 col-md-3">
+            <div class="report-card">
+                <h6 class="report-label">Total Expenses</h6>
+                <h4 class="report-value">₹{{ number_format($totalExpenses, 2) }}</h4>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-2">
-            <div class="card p-3 shadow-sm">
-                <h6>Net Amount</h6>
-                <h4>₹{{ number_format($totalFees - $totalExpenses,2) }}</h4>
+        <div class="col-12 col-md-3">
+            <div class="report-card">
+                <h6 class="report-label">Net Amount</h6>
+                <h4 class="report-value">₹{{ number_format($totalFees - $totalExpenses, 2) }}</h4>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-2">
-            <div class="card p-3 shadow-sm">
-                <h6>Total Members</h6>
-                <h4>{{ $totalMembers }}</h4>
+        <div class="col-12 col-md-3">
+            <div class="report-card">
+                <h6 class="report-label">Total Members</h6>
+                <h4 class="report-value">{{ $totalMembers }}</h4>
             </div>
         </div>
     </div>
+
     <!-- Filter Section -->
-    <form method="GET" action="{{ route('gym.report') }}" class="row g-2 mb-4">
-        <div class="col-12 col-md-2">
-            <input type="date" name="from" value="{{ $from ?? '' }}" class="form-control" placeholder="From Date">
+    <form method="GET" action="{{ route('gym.report') }}" class="report-filter row g-2 mb-4 align-items-end">
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">From</label>
+            <input type="date" name="from" value="{{ $from ?? '' }}" class="form-control form-control-sm">
         </div>
-        <div class="col-12 col-md-2">
-            <input type="date" name="to" value="{{ $to ?? '' }}" class="form-control" placeholder="To Date">
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">To</label>
+            <input type="date" name="to" value="{{ $to ?? '' }}" class="form-control form-control-sm">
         </div>
-        <div class="col-12 col-md-3">
-            <select name="type" class="form-select">
-                <option value="members" @if($type=='members') selected @endif>Members Data</option>
-                <option value="expenses" @if($type=='expenses') selected @endif>Expenses Data</option>
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1">Type</label>
+            <select name="type" class="form-select form-select-sm">
+                <option value="members" @if ($type == 'members') selected @endif>Members Data</option>
+                <option value="expenses" @if ($type == 'expenses') selected @endif>Expenses Data</option>
             </select>
         </div>
-        <div class="col-12 col-md-3">
-            <select name="member_id" class="form-select">
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1">Member</label>
+            <select name="member_id" class="form-select form-select-sm">
                 <option value="">All Members</option>
-                @foreach(DB::table('members')->get() as $mem)
-                    <option value="{{ $mem->id }}" @if($member_id==$mem->id) selected @endif>
+                @foreach (DB::table('members')->get() as $mem)
+                    <option value="{{ $mem->id }}" @if ($member_id == $mem->id) selected @endif>
                         {{ $mem->first_name }} {{ $mem->last_name ?? '' }}
                     </option>
                 @endforeach
             </select>
         </div>
-        <div class="col-12 col-md-2">
-            <button class="btn btn-primary w-100">Filter</button>
+        <div class="col-12 col-md-2 d-grid">
+            <button class="btn btn-primaryy btn-sm">Filter</button>
         </div>
     </form>
 
-    
 
-    <!-- Export Buttons -->
-    <div class="mb-3 d-flex gap-2">
-        <a href="{{ route('gym.report.pdf', request()->all()) }}" class="btn btn-danger">Download PDF</a>
-        <a href="{{ route('gym.report.csv', request()->all()) }}" class="btn btn-success">Download CSV</a>
+
+        <!-- Export Buttons -->
+    <div class="mb-3 d-flex justify-content-end gap-2">
+        <a href="{{ route('gym.report.pdf', array_merge(request()->all(), ['pdf'=>1])) }}" class="btn btn-danger btn-sm">Download PDF</a>
+        <a href="{{ route('gym.report.csv', request()->all()) }}" class="btn btn-success btn-sm">Download CSV</a>
     </div>
-
-    <!-- Data Table -->
-    @if($type=='members')
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Members Details</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Mobile</th>
-                            <th>Membership Type</th>
-                            <th>Valid From</th>
-                            <th>Valid To</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($members as $m)
-                        <tr>
-                            <td>{{ $m->id }}</td>
-                            <td>{{ $m->full_name ?? $m->first_name.' '.$m->last_name }}</td>
-                            <td>{{ $m->mobile_number }}</td>
-                            <td>{{ $m->membership_type }}</td>
-                            <td>{{ $m->membership_valid_from }}</td>
-                            <td>{{ $m->membership_valid_to }}</td>
-                            <td>₹{{ number_format($m->amount ?? 0,2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @else
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Expenses Details</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                            <th>Description</th>
-                            <th>Expense Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($expenses as $e)
-                        <tr>
-                            <td>{{ $e->id }}</td>
-                            <td>{{ $e->category }}</td>
-                            <td>₹{{ number_format($e->amount,2) }}</td>
-                            <td>{{ $e->description }}</td>
-                            <td>{{ $e->expense_date }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
     @endif
 
+
+        <style>
+            :root {
+                --bg-gradient: linear-gradient(135deg, #243949 0%, #517fa4 100%);
+                --sidebar-gradient: linear-gradient(180deg, #0f2027 0%, #203a43 100%);
+                --topbar-gradient: linear-gradient(45deg, #5056b5 0%, #60557f 100%);
+                --accent-gradient: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+                --text-light: #e0e0e0;
+                --text-dark: #374151;
+                --card-bg: #ffffff;
+            }
+
+            .table thead {
+                background: var(--topbar-gradient);
+                color: var(--text-light);
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+
+            .table tbody tr {
+                transition: all 0.3s;
+            }
+
+            .table tbody tr:hover {
+                background: var(--accent-gradient);
+                color: #fff;
+            }
+
+            .table td,
+            .table th {
+                vertical-align: middle;
+                font-size: 0.85rem;
+            }
+
+            .card {
+                border-radius: 8px;
+                background: var(--card-bg);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .card-header {
+                font-size: 0.95rem;
+                font-weight: 500;
+                padding: 0.5rem 1rem;
+            }
+
+            .card-body p {
+                font-size: 0.85rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .card-body span {
+                font-weight: 500;
+            }
+
+            .d-block.d-md-none .card-header {
+                font-size: 0.9rem;
+                font-weight: 500;
+                padding: 0.5rem;
+            }
+
+            .d-block.d-md-none .card-body p {
+                font-size: 0.8rem;
+            }
+
+            .d-block.d-md-none .card.selected {
+                border: 2px solid var(--accent-gradient);
+            }
+
+            .bi-chevron-down {
+                font-size: 1rem;
+                transition: transform 0.3s;
+            }
+
+            .collapse.show+.card-header i {
+                transform: rotate(180deg);
+            }
+        </style>
+
+        @php
+    // Determine table data for PDF or web
+    $items = request()->has('pdf') ? $data : ($type == 'members' ? $members : $expenses);
+@endphp
+
+<div class="card shadow-sm border-0">
+    <div class="card-header text-white" style="background: var(--accent-gradient);">
+        <h5 class="mb-0">{{ ucfirst($type) }} Details</h5>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-hover align-middle mb-0 @if(request()->has('pdf')) pdf-table @endif">
+            <thead>
+                @if($type == 'members')
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Membership Type</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>Amount</th>
+                </tr>
+                @else
+                <tr>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Expense Date</th>
+                </tr>
+                @endif
+            </thead>
+            <tbody>
+                @foreach($items as $item)
+                    @if($type == 'members')
+                    <tr>
+                        <td>{{ $item->id }}</td>
+                        <td>{{ $item->full_name ?? $item->first_name.' '.$item->last_name }}</td>
+                        <td>{{ $item->mobile_number }}</td>
+                        <td>{{ $item->membership_type }}</td>
+                        <td>{{ $item->membership_valid_from }}</td>
+                        <td>{{ $item->membership_valid_to }}</td>
+                        <td class="text-success">₹{{ number_format($item->amount ?? 0,2) }}</td>
+                    </tr>
+                    @else
+                    <tr>
+                        <td>{{ $item->id }}</td>
+                        <td>{{ $item->category }}</td>
+                        <td class="text-danger">₹{{ number_format($item->amount,2) }}</td>
+                        <td>{{ $item->description }}</td>
+                        <td>{{ $item->expense_date }}</td>
+                    </tr>
+                    @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Accordion Cards -->
+    <div class="d-block d-md-none" id="{{ $type }}Accordion">
+        @foreach($items as $item)
+            <div class="card mb-2 shadow-sm" onclick="selectCard(this)">
+                <div class="card-header d-flex justify-content-between align-items-center p-2"
+                     data-bs-toggle="collapse" data-bs-target="#{{ $type }}Card{{ $item->id }}"
+                     style="cursor:pointer;">
+                    <div>
+                        @if($type == 'members')
+                            {{ $item->full_name ?? $item->first_name.' '.$item->last_name }}
+                        @else
+                            {{ $item->category }}
+                        @endif
+                    </div>
+                    <i class="bi bi-chevron-down text-dark"></i>
+                </div>
+                <div class="collapse" id="{{ $type }}Card{{ $item->id }}" data-bs-parent="#{{ $type }}Accordion">
+                    <div class="card-body p-2">
+                        @if($type == 'members')
+                            <p><strong>ID:</strong> {{ $item->id }}</p>
+                            <p><strong>Mobile:</strong> {{ $item->mobile_number }}</p>
+                            <p><strong>Membership:</strong> {{ $item->membership_type }}</p>
+                            <p><strong>Valid:</strong> {{ $item->membership_valid_from }} → {{ $item->membership_valid_to }}</p>
+                            <p><strong>Amount:</strong> ₹{{ number_format($item->amount ?? 0,2) }}</p>
+                        @else
+                            <p><strong>ID:</strong> {{ $item->id }}</p>
+                            <p><strong>Amount:</strong> ₹{{ number_format($item->amount,2) }}</p>
+                            <p><strong>Description:</strong> {{ $item->description }}</p>
+                            <p><strong>Date:</strong> {{ $item->expense_date }}</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
 </div>
+
+<script>
+    function selectCard(card){
+        const parent = card.parentElement;
+        [...parent.children].forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+    }
+</script>
 @endsection

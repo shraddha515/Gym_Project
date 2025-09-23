@@ -2,9 +2,9 @@
 
 @section('page-title', 'Gym Dashboard')
 
-@section('content')
-<div class="container">
+
+<div class="container" style="color: white!imprtant;">
     <h2>Welcome </h2>
-    <p>Your Gym Dashboard features will go here...</p>
+    <p >Your Gym Dashboard features will go here...</p>
 </div>
-@endsection
+

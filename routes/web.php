@@ -20,7 +20,9 @@ Route::prefix('gym/dashboard')->group(function () {
 
 Route::get('/gym/dashboard/members/filter', [AdminController::class, 'filterMembers'])
      ->name('gym.dashboard.members.filter');
-// Route::post('/members/{id}/renew', [AdminController::class, 'renewMember'])->name('members.renew');
+Route::post('/members/{id}/renew', [AdminController::class, 'renewMember'])->name('members.renew');
+
+
 
 // Member Management Routes
 Route::prefix('members')->name('gym.members.')->group(function () {
@@ -32,6 +34,7 @@ Route::prefix('members')->name('gym.members.')->group(function () {
     Route::get('{id}/edit', [MemberController::class, 'edit'])->name('edit');
     Route::put('{id}', [MemberController::class, 'update'])->name('update');
     Route::delete('{id}', [MemberController::class, 'destroy'])->name('destroy');
+    
 });
 
 
@@ -54,10 +57,7 @@ Route::post('/membership/category/delete/{id}', [AdminController::class, 'delete
 
 Route::post('/membership/installment/add', [AdminController::class, 'addInstallment'])->name('membership.installment.add');
 Route::post('/membership/installment/delete/{id}', [AdminController::class, 'deleteInstallment'])->name('membership.installment.delete');
-    Route::get('/packages', [AdminController::class, 'gymPackages'])->name('gym.packages');
-    Route::get('/trainers', [AdminController::class, 'gymTrainers'])->name('gym.trainers');
-    Route::get('/reports', [AdminController::class, 'gymReports'])->name('gym.reports');
-    Route::get('/expenses', [AdminController::class, 'gymExpenses'])->name('gym.expenses');
+    
     
 Route::get('/settings', [AdminController::class, 'gymSettings'])->name('gym.settings');
 Route::post('/settings', [AdminController::class, 'updateGymSettings'])->name('gym.settings.update');
@@ -73,7 +73,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     // Future ready endpoints for reports/exports:
-    Route::get('/expenses/report', [ExpenseController::class, 'report'])->name('expenses.report');         // report filter page
+    Route::get('/expenses/expensesreport', [ExpenseController::class, 'expensesreport'])->name('expenses.expensesreport');         // report filter page
     Route::get('/expenses/export/csv', [ExpenseController::class, 'exportCsv'])->name('expenses.export.csv'); // export CSV
 });
 

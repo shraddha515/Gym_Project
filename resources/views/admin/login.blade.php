@@ -38,9 +38,9 @@
         position: relative;
         z-index: 1;
         background: rgba(255,255,255,0.85); /* white transparent */
-        border-radius: 20px;
+        border-radius: 0px;
         padding: 50px 35px;
-        width: 90%;
+        width: 100%;
         max-width: 400px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         text-align: center;
@@ -72,8 +72,8 @@
     }
 
     .form-control:focus {
-        border-color: #f8c202;
-        box-shadow: 0 0 10px rgba(248,194,2,0.5);
+       border-color: #362289ff;
+        box-shadow: 0 0 10px rgba(37, 13, 115, 0.5);
         background: #fff;
         color: #000;
     }
@@ -89,7 +89,7 @@
     }
 
     .btn-primary {
-        background: #f8c202;
+        background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);;
         border: none;
         color: #000;
         font-weight: bold;
@@ -97,7 +97,7 @@
         border-radius: 12px;
         font-size: 1.1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(248,194,2,0.4);
+        box-shadow: 0 5px 15px rgba(2, 150, 248, 0.4);
     }
 
     .btn-primary:hover {

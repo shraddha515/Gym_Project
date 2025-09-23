@@ -16,6 +16,8 @@ class LoginController extends Controller
         return view('admin.login'); 
     }
 
+
+
     public function login(Request $request)
 {
     $request->validate([
@@ -42,10 +44,14 @@ class LoginController extends Controller
         'email' => 'Invalid credentials. कृपया सही ईमेल और पासवर्ड डालें।',
     ]);
 }
+
+
+
+
     // SUPER ADMIN DASHBOARD
     public function superAdminDashboard()
     {
-        $gyms = DB::table('gym_companies')->orderBy('id', 'desc')->get();
+        $gyms = DB::table('gym_companies')->orderBy('gym_id', 'desc')->get();
         return view('admin.superadmin_dashboard', compact('gyms'));
     }
 
@@ -67,30 +73,39 @@ class LoginController extends Controller
             'address'      => $request->address,
         ]);
 
-        // 2. Insert gym admin into users
-        DB::table('users')->insert([
-            'company_id' => $companyId,
-            'name'       => $request->company_name . ' Admin',
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'role'       => 'owner', // default gym company owner
-        ]);
-
+        // Fixed Code
+DB::table('users')->insert([
+    'gym_id' => $companyId,
+    'name'   => $request->company_name . ' Admin',
+    'email'  => $request->email,
+    'password' => Hash::make($request->password),
+    'role'   => 'owner', 
+]);
         return redirect()->route('superadmin.dashboard')
                          ->with('success', 'Gym Company created successfully!');
     }
+
+
+
 
     // GYM DASHBOARD
     public function gymDashboard()
     {
         $user = Auth::user();
+        
+        // You can use the authenticated user's gym_id to fetch related data
+        $gymId = $user->gym_id;
         return view('admin.gym_dashboard', compact('user'));
     }
+
+
 
     public function layout()
     {
         return view('layout');
     }
+
+
 
      public function logout(Request $request)
     {
