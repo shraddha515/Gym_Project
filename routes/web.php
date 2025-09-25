@@ -22,9 +22,7 @@ Route::prefix('gym/dashboard')->group(function () {
 
 Route::get('/gym/dashboard/members/filter', [AdminController::class, 'filterMembers'])
      ->name('gym.dashboard.members.filter');
-Route::post('/members/{id}/renew', [AdminController::class, 'renewMember'])->name('members.renew');
-
-
+Route::post('/members/{id}/renew', [AdminController::class, 'renewSubmit'])->name('members.renew');
 
 // Member Management Routes
 Route::prefix('members')->name('gym.members.')->group(function () {

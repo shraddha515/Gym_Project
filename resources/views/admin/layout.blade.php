@@ -199,7 +199,7 @@
         .main-card {
             color: white;
             text-align: center;
-            font-size: 20px;
+            font-size: 12px;
             font-weight: bold;
 
         }
