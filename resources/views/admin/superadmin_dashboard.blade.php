@@ -1,26 +1,33 @@
 @extends('admin.layout')
-
 @section('page-title', 'Super Admin Dashboard')
 
 @section('content')
-
 <div class="container-fluid py-4">
-    {{-- Success Message --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    {{-- Add Gym Button Section --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <button class="btn btn-add-gym" data-bs-toggle="modal" data-bs-target="#addGymModal">
+    <div class="d-flex justify-content-end mb-4">
+        <button class="btn btn-add-gym" data-bs-toggle="modal" data-bs-target="#addEditGymModal" id="addGymBtn">
             <i class="bi bi-plus-circle me-2"></i> Add New Gym
         </button>
     </div>
 
-    {{-- All Companies Table --}}
     <div class="card shadow-sm p-4">
         <h4 class="card-title mb-3">All Companies</h4>
         <div class="table-responsive d-none d-md-block">
@@ -32,95 +39,149 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Created</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($gyms as $gym)
                         <tr>
                             <td>{{ $gym->gym_id }}</td>
-                            <td>{{ $gym->company_name ?? $gym->name ?? $gym->company }}</td>
+                            <td>{{ $gym->company_name }}</td>
                             <td>{{ $gym->email }}</td>
                             <td>{{ $gym->phone }}</td>
                             <td>{{ \Carbon\Carbon::parse($gym->created_at)->format('d M, Y') }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary edit-btn" data-bs-toggle="modal" data-bs-target="#addEditGymModal"
+                                    data-gym-id="{{ $gym->gym_id }}"
+                                    data-company-name="{{ $gym->company_name }}"
+                                    data-email="{{ $gym->email }}"
+                                    data-phone="{{ $gym->phone }}"
+                                    data-address="{{ $gym->address }}">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </button>
+                                <form action="{{ route('superadmin.deleteCompany', $gym->gym_id) }}" method="POST" class="d-inline delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger delete-btn">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No companies found.</td>
+                            <td colspan="6" class="text-center text-muted py-4">No companies found.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
-        {{-- Mobile View Cards --}}
-        <div class="d-md-none">
-            @forelse($gyms as $gym)
-                <div class="card mb-3 gym-card-mobile shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title-mobile mb-1">{{ $gym->company_name ?? $gym->name ?? $gym->company }}</h6>
-                                <p class="card-subtitle-mobile text-muted mb-2">ID: {{ $gym->gym_id }}</p>
-                            </div>
-                            <span class="badge bg-primary">{{ \Carbon\Carbon::parse($gym->created_at)->format('M d, Y') }}</span>
-                        </div>
-                        <ul class="list-unstyled mb-0 mt-3">
-                            <li class="d-flex align-items-center mb-1"><i class="bi bi-envelope me-2"></i>{{ $gym->email }}</li>
-                            <li class="d-flex align-items-center"><i class="bi bi-phone me-2"></i>{{ $gym->phone }}</li>
-                        </ul>
-                    </div>
-                </div>
-            @empty
-                <div class="alert alert-info text-center">No companies found.</div>
-            @endforelse
-        </div>
     </div>
-
 </div>
 
-{{-- Add Gym Modal --}}
-<div class="modal fade" id="addGymModal" tabindex="-1" aria-labelledby="addGymModalLabel" aria-hidden="true">
+{{-- Add/Edit Gym Modal --}}
+<div class="modal fade" id="addEditGymModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content professional-modal">
             <div class="modal-header modal-header-gradient">
-                <h5 class="modal-title text-white" id="addGymModalLabel">Add New Gym Company</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title text-white" id="modalTitle">Add New Gym Company</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form method="POST" action="{{ route('superadmin.addCompany') }}">
+                <form method="POST" id="gymForm">
                     @csrf
+                    <input type="hidden" name="_method" id="methodField" value="POST">
+
                     <div class="mb-3">
-                        <label for="company_name" class="form-label professional-label">Company Name</label>
-                        <input type="text" name="company_name" id="company_name" class="form-control form-control-sm professional-input" required>
+                        <label for="company_name" class="form-label">Company Name</label>
+                        <input type="text" name="company_name" id="company_name" class="form-control" required>
                     </div>
+
+                    <div class="mb-3" id="passwordGroup">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" name="password" id="password" class="form-control" required>
+                    </div>
+
                     <div class="mb-3">
-                        <label for="email" class="form-label professional-label">Email</label>
-                        <input type="email" name="email" id="email" class="form-control form-control-sm professional-input" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" required>
                     </div>
+
                     <div class="mb-3">
-                        <label for="password" class="form-label professional-label">Password</label>
-                        <input type="password" name="password" id="password" class="form-control form-control-sm professional-input" required>
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" name="phone" id="phone" class="form-control" maxlength="10">
                     </div>
+
                     <div class="mb-3">
-                        <label for="phone" class="form-label professional-label">Phone (10 digits)</label>
-                        <input type="text" name="phone" id="phone" class="form-control form-control-sm professional-input" maxlength="10" inputmode="numeric">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" name="address" id="address" class="form-control">
                     </div>
-                    <div class="mb-4">
-                        <label for="address" class="form-label professional-label">Address</label>
-                        <input type="text" name="address" id="address" class="form-control form-control-sm professional-input">
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary professional-btn">Add Gym</button>
-                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Gym</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('addEditGymModal');
+    const form = document.getElementById('gymForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const methodField = document.getElementById('methodField');
+    const passwordGroup = document.getElementById('passwordGroup');
+    const passwordInput = document.getElementById('password');
+
+    // Add Gym Button
+    document.getElementById('addGymBtn').addEventListener('click', function() {
+        modalTitle.textContent = 'Add New Gym Company';
+        submitBtn.textContent = 'Add Gym';
+        form.reset();
+        form.action = "{{ route('superadmin.addCompany') }}";
+        methodField.value = "POST";
+        passwordGroup.style.display = 'block';
+        passwordInput.setAttribute('required','required');
+    });
+
+    // Edit Buttons
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const gymId = this.dataset.gymId;
+            modalTitle.textContent = 'Edit Gym Company';
+            submitBtn.textContent = 'Update Gym';
+            form.action = "{{ url('superadmin/update-company') }}/" + gymId;
+            methodField.value = "PUT";
+            passwordGroup.style.display = 'none';
+            passwordInput.removeAttribute('required');
+
+            document.getElementById('company_name').value = this.dataset.companyName;
+            document.getElementById('email').value = this.dataset.email;
+            document.getElementById('phone').value = this.dataset.phone;
+            document.getElementById('address').value = this.dataset.address;
+        });
+    });
+
+    // Delete confirmation
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            if(!confirm('Are you sure?')) e.preventDefault();
+        });
+    });
+});
+</script>
 @endsection
 
 @section('styles')
 <style>
+    .form-label{
+        color: #212529;
+
+    }
     /* Global Styles */
     body {
         background-color: #f4f6f9;

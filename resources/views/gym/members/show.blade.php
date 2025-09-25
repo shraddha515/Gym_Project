@@ -45,12 +45,12 @@
         <h6 class="text-success mb-3" style="font-weight:500; font-size:1.5rem;">Membership Details</h6>
         <div class="row g-2">
             <div class="col-6">
-                <small class="text-dark" style="font-weight:400; font-size:1rem;">Membership Type</small>
-                <p class="mb-1" style="font-size:0.85rem;">{{ $member->membership_type ?? 'N/A' }}</p>
+                <small class="text-dark" style="font-weight:400; font-size:1rem;">Fees Due</small>
+                <p class="mb-1" style="font-size:0.85rem;">{{ $member->fees_due ?? '0' }}</p>
             </div>
             <div class="col-6">
-                <small class="text-dark" style="font-weight:400; font-size:1rem;">Member Status</small>
-                <p class="mb-1 text-success" style="font-size:0.85rem;">{{ $member->member_type ?? 'N/A' }}</p>
+                <small class="text-dark" style="font-weight:400; font-size:1rem;">Fees Paid</small>
+                <p class="mb-1" style="font-size:0.85rem;">{{ $member->fees_paid ?? '0' }}</p>
             </div>
             <div class="col-6">
                 <small class="text-dark" style="font-weight:400; font-size:1rem;">Membership Valid From</small>

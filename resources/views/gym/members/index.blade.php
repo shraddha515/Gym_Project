@@ -260,13 +260,15 @@
                                 <th>Photo</th>
                                 <th>Member ID</th>
                                 <th>Name</th>
-                                <th>Assigned PT</th>
+                                <th>Aadhar no</th>
                                 <th>Joining Date</th>
+                                <th>Fees Paid</th> {{-- NEW --}}
+                                <th>Fees Due</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody >
                             @forelse($members as $member)
                                 <tr style="background:#f8fafc; border-radius:6px;">
                                     <td>
@@ -285,10 +287,16 @@
                                         {{ $member->member_id }}</td>
                                     <td style="font-weight:500; color:var(--text-dark); font-size:0.87rem;">
                                         {{ $member->first_name }} {{ $member->last_name }}</td>
-                                    <td style="color:var(--text-dark); font-size:0.86rem;">{{ $member->pt_name ?? '-' }}
-                                    </td>
+                                    <td style="color:var(--text-dark); font-size:0.86rem;">
+                                        {{ $member->aadhar_no ?? '-' }}</td>
+
                                     <td style="color:var(--text-dark); font-size:0.86rem;">
                                         {{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</td>
+
+                                    <td style="color:var(--text-dark); font-size:0.86rem;">{{ $member->fees_paid ?? '0' }}
+                                    </td> {{-- NEW --}}
+                                    <td style="color:var(--text-dark); font-size:0.86rem;">{{ $member->fees_due ?? '0' }}
+                                    </td> {{-- NEW --}}
                                     <td>
                                         <span
                                             class="badge status-badge {{ $member->status == 'Active' ? 'bg-success' : 'bg-secondary' }}"
@@ -360,14 +368,26 @@
                                         <span>Member ID</span>
                                         <span>{{ $member->member_id }}</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{-- <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span>Assigned PT</span>
                                         <span>{{ $member->pt_name ?? '-' }}</span>
-                                    </li>
+                                    </li> --}}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Aadhar no</span>
+                                        <span>{{ $member->aadhar_no ?? '-' }}</span>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span>Joining Date</span>
                                         <span>{{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</span>
                                     </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Fees Paid</span>
+                                        <span>{{ $member->fees_paid ?? '0' }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Fees Due</span>
+                                        <span>{{ $member->fees_due ?? '0' }}</span>
+                                    </li>
+
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span>Status</span>
                                         <span
@@ -426,7 +446,7 @@
 
     </div>
     </div>
-@endsection
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -465,22 +485,10 @@
 @endpush
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const searchForm = document.getElementById('searchForm');
-            let timeout = null;
-
-            // Listen for the 'input' event on the search box
-            searchInput.addEventListener('input', function() {
-                // Clear any previous timeout to reset the delay
-                clearTimeout(timeout);
-
-                // Set a new timeout to submit the form after a short pause (e.g., 500ms)
-                timeout = setTimeout(() => {
-                    searchForm.submit();
-                }, 500); // Adjust the delay as needed (e.g., 300ms, 750ms)
-            });
-        });
-    </script>
+   
 @endpush
+
+
+@endsection
+
+

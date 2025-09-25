@@ -76,7 +76,7 @@ class ExpenseController extends Controller
             'category' => 'required|string|max:500', 
             'amount' => 'required|numeric|min:0.01|decimal:0,2', // Enforce at least 0.01 and max 2 decimal places
             'description' => 'nullable|string|max:500', // A more generous max length for descriptions
-            'expense_date' => 'required|date|before_or_equal:today', // Ensure the date is not in the future
+            'expense_date' => 'required|date|before_or_equal:' . date('Y-m-d'),// Ensure the date is not in the future
             'payment_method' => 'nullable|string|max:50|alpha', // 'alpha' ensures only letters
         ]);
 

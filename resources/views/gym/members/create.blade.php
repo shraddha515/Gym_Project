@@ -84,8 +84,8 @@
                                     <input class="form-check-input" type="radio" name="gender"
                                         id="{{ strtolower($gender) }}" value="{{ $gender }}"
                                         {{ isset($member) && $member->gender == $gender ? 'checked' : '' }}>
-                                    <label class="form-check-label"
-                                        for="{{ strtolower($gender) }}" style="font-size: 16px;">{{ $gender }}</label>
+                                    <label class="form-check-label" for="{{ strtolower($gender) }}"
+                                        style="font-size: 16px;">{{ $gender }}</label>
                                 </div>
                             @endforeach
                         </div>
@@ -167,6 +167,22 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Fees Paid</label>
+                            <input type="number" min="0" step="0.01" name="fees_paid" class="form-control"
+                                value="{{ old('fees_paid', $member->fees_paid ?? '') }}"
+                                placeholder="Enter fees paid by member">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fees Due</label>
+                            <input type="number" min="0" step="0.01" name="fees_due" class="form-control"
+                                value="{{ old('fees_due', $member->fees_due ?? '') }}"
+                                placeholder="Enter remaining fees due">
+                        </div>
+                    </div>
+
 
 
                     <div class="col-md-6">
@@ -175,19 +191,19 @@
                             value="{{ old('membership_valid_from', $member->membership_valid_from ?? '') }}">
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    {{-- <div class="col-md-6 mb-3">
                         <label class="form-label">Assign PT</label>
-                        <select name="assigned_staff_id" class="form-control">
-                            <option value="">Select PT</option>
-                            @foreach ($pts as $pt)
-                                <option value="{{ $pt->id }}"
-                                    {{ isset($member) && $member->assigned_staff_id == $pt->id ? 'selected' : '' }}>
-                                    {{ $pt->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <select name="membership_type" class="form-select">
+    @foreach ($membershipTypes as $type)
+        <option value="{{ $type->id }}"
+            {{ isset($member) && $member->membership_type == $type->id ? 'selected' : '' }}>
+            {{ $type->name }}
+        </option>
+    @endforeach
+</select>
 
-                    </div>
+
+                    </div> --}}
 
 
                     <div class="col-md-6">
@@ -293,108 +309,108 @@
         }
     </style> --}}
 
-    @section('styles')
-<style>
-    body {
-        background-color: #f5f7fa;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .dashboard-heading {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .member-form-card {
-        border-radius: 12px;
-        background: #fff;
-        border: none;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
-
-    .form-section-heading {
-        font-weight: 600;
-        color: rgb(63 79 148);
-        border-bottom: 2px solid rgb(63 79 148);
-        padding-bottom: 0.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #555;
-    }
-
-    .form-control,
-    .form-select {
-        border-radius: 8px;
-        border: 1px solid #ced4da;
-        transition: all 0.2s ease-in-out;
-        font-size: 0.95rem;
-        padding: 0.55rem 0.75rem;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: rgb(63 79 148);
-        box-shadow: 0 0 0 0.2rem rgba(63, 79, 148, 0.25);
-    }
-
-    .btn-success {
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .btn-success:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.2);
-    }
-
-    /* ✅ Mobile Responsive Tweaks */
-    @media(max-width: 767.98px) {
-        .dashboard-heading {
-            font-size: 1.25rem;
-            font-weight: 500;
+@section('styles')
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .d-flex.justify-content-between {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
+        .dashboard-heading {
+            font-weight: 600;
+            color: #333;
         }
 
         .member-form-card {
-            padding: 1rem !important;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            background: #fff;
+            border: none;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         }
 
         .form-section-heading {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-top: 1rem;
+            font-weight: 600;
+            color: rgb(63 79 148);
+            border-bottom: 2px solid rgb(63 79 148);
+            padding-bottom: 0.25rem;
+            margin-bottom: 1rem;
         }
 
         .form-label {
-            font-size: 0.85rem;
-            font-weight: 400;
+            font-weight: 500;
+            color: #555;
         }
 
         .form-control,
         .form-select {
-            font-size: 0.85rem;
-            padding: 0.4rem 0.65rem;
-            border-radius: 5px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.95rem;
+            padding: 0.55rem 0.75rem;
         }
 
-        .btn.gradient-btn,
-        .btn-success {
-            width: 100%;
-            font-size: 0.85rem;
-            padding: 0.55rem;
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgb(63 79 148);
+            box-shadow: 0 0 0 0.2rem rgba(63, 79, 148, 0.25);
         }
-    }
-</style>
+
+        .btn-success {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.2);
+        }
+
+        /* ✅ Mobile Responsive Tweaks */
+        @media(max-width: 767.98px) {
+            .dashboard-heading {
+                font-size: 1.25rem;
+                font-weight: 500;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .member-form-card {
+                padding: 1rem !important;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            }
+
+            .form-section-heading {
+                font-size: 1rem;
+                font-weight: 500;
+                margin-top: 1rem;
+            }
+
+            .form-label {
+                font-size: 0.85rem;
+                font-weight: 400;
+            }
+
+            .form-control,
+            .form-select {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.65rem;
+                border-radius: 5px;
+            }
+
+            .btn.gradient-btn,
+            .btn-success {
+                width: 100%;
+                font-size: 0.85rem;
+                padding: 0.55rem;
+            }
+        }
+    </style>
 @endsection
 
 @endsection

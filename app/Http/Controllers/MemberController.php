@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class MemberController extends Controller
+/**
+ * Display a listing of the members.
+ * Includes search and sorting functionality.
+ */
 {
-    /**
-     * Display a listing of the members.
-     * Includes search and sorting functionality.
-     */
- public function index(Request $request)
+public function index(Request $request)
 {
     // Get the authenticated user and their gym_id
     $user = Auth::user();
@@ -30,24 +30,30 @@ class MemberController extends Controller
 
     // Handle search filter
     if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('members.first_name', 'like', "%{$search}%")
-              ->orWhere('members.last_name', 'like', "%{$search}%")
-              ->orWhere('members.member_id', 'like', "%{$search}%")
-              ->orWhere('members.mobile_number', 'like', "%{$search}%");
+        $searchTerm = $request->input('search');
+
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('members.first_name', 'like', "%{$searchTerm}%")
+                ->orWhere('members.last_name', 'like', "%{$searchTerm}%")
+                ->orWhere('members.member_id', 'like', "%{$searchTerm}%")
+                ->orWhere('members.mobile_number', 'like', "%{$searchTerm}%")
+                ->orWhere('members.aadhar_no', 'like', "%{$searchTerm}%");
         });
     }
 
+    // --- The following lines were unreachable and have been moved here ---
+    
     // Handle sorting (default: members.id)
     $sort = $request->get('sort', 'members.id');
     $direction = $request->get('direction', 'asc');
 
-    // Apply sorting and paginate
+    // Apply sorting and pagination
     $members = $query->orderBy($sort, $direction)->paginate(10)->withQueryString();
 
+ // Always return full view, AJAX fetch will parse it
     return view('gym.members.index', compact('members'));
 }
+
 
     public function create()
 {
@@ -88,19 +94,21 @@ public function store(Request $request)
     $validated = $request->validate([
         'first_name' => 'required|string|max:255',
         'last_name' => 'nullable|string|max:255',
-        'gender' => 'nullable|in:Male,Female,Other',
-        'date_of_birth' => 'nullable|date',
+        'gender' => 'required|in:Male,Female,Other',
+        'date_of_birth' => 'required|date',
         'mobile_number' => 'required|string|max:20',
         'address' => 'required|string|max:255',
-        'aadhar_no' => 'nullable|string|max:12',
+        'aadhar_no' => 'required|string|max:12',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'interested_area' => 'nullable|string',
         'membership_type' => 'required|integer|exists:memberships,id',
-        'membership_valid_from' => 'nullable|date',
-        'membership_valid_to' => 'nullable|date',
+        'membership_valid_from' => 'required|date',
+        'membership_valid_to' => 'required|date',
         'weight' => 'nullable|numeric',
         'height' => 'nullable|numeric',
         'fat_percentage' => 'nullable|numeric',
+        'fees_due' => 'required|numeric',
+        'fees_paid' => 'required|numeric',
     ]);
 
     // Generate unique member_id
@@ -184,19 +192,21 @@ public function update(Request $request, $id)
     $validated = $request->validate([
         'first_name' => 'required|string|max:255',
         'last_name' => 'nullable|string|max:255',
-        'gender' => 'nullable|in:Male,Female,Other',
-        'date_of_birth' => 'nullable|date',
+        'gender' => 'required|in:Male,Female,Other',
+        'date_of_birth' => 'required|date',
         'mobile_number' => 'required|string|max:20',
         'address' => 'required|string|max:255',
-        'aadhar_no' => 'nullable|string|max:12',
+        'aadhar_no' => 'required|string|max:12',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'interested_area' => 'nullable|string',
         'membership_type' => 'required|integer|exists:memberships,id',
-        'membership_valid_from' => 'nullable|date',
-        'membership_valid_to' => 'nullable|date',
+        'membership_valid_from' => 'required|date',
+        'membership_valid_to' => 'required|date',
         'weight' => 'nullable|numeric',
         'height' => 'nullable|numeric',
         'fat_percentage' => 'nullable|numeric',
+         'fees_due' => 'required|numeric',
+        'fees_paid' => 'required|numeric',
     ]);
 
     // Handle photo upload

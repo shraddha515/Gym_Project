@@ -13,10 +13,12 @@ Route::post('admin/login', [LoginController::class, 'login'])->name('admin.login
 // Superadmin
 Route::get('superadmin/dashboard', [LoginController::class, 'superAdminDashboard'])->name('superadmin.dashboard');
 Route::post('superadmin/add-company', [LoginController::class, 'addCompany'])->name('superadmin.addCompany');
+Route::put('superadmin/update-company/{id}', [LoginController::class, 'updateCompany'])->name('superadmin.updateCompany');
+Route::delete('superadmin/delete-company/{id}', [LoginController::class, 'deleteCompany'])->name('superadmin.deleteCompany');
 
 // Gym Dashboard & Sections
 Route::prefix('gym/dashboard')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('gym.dashboard');
+    // Route::get('/', [AdminController::class, 'index'])->name('gym.dashboard');
 
 Route::get('/gym/dashboard/members/filter', [AdminController::class, 'filterMembers'])
      ->name('gym.dashboard.members.filter');
@@ -45,23 +47,39 @@ Route::prefix('members')->name('gym.members.')->group(function () {
 Route::get('members/export/csv', [MemberController::class, 'exportCsv'])->name('gym.members.export.csv');
 Route::get('members/export/pdf', [MemberController::class, 'exportPdf'])->name('gym.members.export.pdf');
 
+
+
+
+
 Route::get('/membership', [AdminController::class, 'gymMembership'])->name('gym.membership');
 
 Route::post('/membership/store', [AdminController::class, 'storeMembership'])->name('membership.store');
-Route::get('/membership/edit/{id}', [AdminController::class, 'editMembership'])->name('membership.edit');
+Route::post('/membership/store', [AdminController::class, 'store'])->name('membership.store');
 Route::post('/membership/update/{id}', [AdminController::class, 'updateMembership'])->name('membership.update');
+
+
 Route::post('/membership/delete/{id}', [AdminController::class, 'deleteMembership'])->name('membership.delete');
+Route::post('/membership/save', [AdminController::class, 'saveMembership'])->name('membership.save');
+
 
 Route::post('/membership/category/add', [AdminController::class, 'addCategory'])->name('membership.category.add');
 Route::post('/membership/category/delete/{id}', [AdminController::class, 'deleteCategory'])->name('membership.category.delete');
 
 Route::post('/membership/installment/add', [AdminController::class, 'addInstallment'])->name('membership.installment.add');
 Route::post('/membership/installment/delete/{id}', [AdminController::class, 'deleteInstallment'])->name('membership.installment.delete');
+// Edit Membership page (new blade)
+Route::get('/membership/edit/{id}', [AdminController::class, 'editMembershipPage'])->name('membership.edit');
+
     
     
 Route::get('/settings', [AdminController::class, 'gymSettings'])->name('gym.settings');
 Route::post('/settings', [AdminController::class, 'updateGymSettings'])->name('gym.settings.update');
 });
+Route::post('/settings/add-superadmin', [AdminController::class, 'addSuperAdmin'])
+    ->name('superadmin.add')
+    ->middleware('auth'); // Optional: restrict to logged-in superadmins
+Route::delete('/superadmin/delete/{id}', [AdminController::class, 'deleteSuperAdmin'])->name('superadmin.deleteUser');
+
 
 use App\Http\Controllers\ExpenseController;
 
@@ -69,7 +87,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::get('/expenses/{id}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
-    Route::post('/expenses/{id}/update', [ExpenseController::class, 'update'])->name('expenses.update');
+   Route::put('expenses/{id}/update', [ExpenseController::class, 'update'])->name('expenses.update');
+
     Route::post('/expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     // Future ready endpoints for reports/exports:

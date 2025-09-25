@@ -397,8 +397,8 @@
             <h4 class="text-white"><i class="bi bi-card-list me-2"></i> List</h4>
             <div>
                 <!-- <button class="btn btn-outline-dark me-2" onclick="location.href='{{ route('gym.membership') }}'">
-                                        <i class="bi bi-list"></i> Membership List
-                                    </button>  -->
+                                            <i class="bi bi-list"></i> Membership List
+                                        </button>  -->
                 <button class="btn btn-tertiary" data-bs-toggle="modal" data-bs-target="#membershipModal"
                     style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%); color:white;">
                     <i class="bi bi-plus-lg"></i> Add
@@ -456,15 +456,13 @@
                                     ₹{{ number_format($m->signup_fee, 2) }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1 flex-wrap">
-                                        <button class="btn btn-action btn-sm" onclick="openEdit({{ $m->id }})">
+                                        <a href="{{ route('membership.edit', $m->id) }}" class="btn btn-action btn-sm">
                                             <i class="bi bi-pencil me-1"></i> Edit
-                                        </button>
+                                        </a>
 
 
 
-                                        <button class="btn btn-action btn-sm " title="Activities">
-                                            <i class="bi bi-list-task me-1"></i> Activities
-                                        </button>
+
                                         <form method="POST" action="{{ url('/membership/delete/' . $m->id) }}"
                                             style="display:inline-block;">
                                             @csrf
@@ -524,9 +522,9 @@
                             </ul>
 
                             <div class="d-flex justify-content-between gap-1 mt-2">
-                                <button class="btn btn-action btn-sm" onclick="openEdit({{ $m->id }})">
+                                <a href="{{ route('membership.edit', $m->id) }}" class="btn btn-action btn-sm">
                                     <i class="bi bi-pencil me-1"></i> Edit
-                                </button>
+                                </a>
 
 
 
@@ -552,50 +550,12 @@
 
 
 
-        <!-- JS: Highlight selected card -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
-                cards.forEach(card => {
-                    card.addEventListener('click', function() {
-                        // Remove 'selected' from all
-                        cards.forEach(c => c.closest('.member-card').classList.remove('selected'));
-                        // Add 'selected' to the clicked one
-                        this.closest('.member-card').classList.add('selected');
-                    });
-                });
-            });
-        </script>
-
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
-                cards.forEach(card => {
-                    card.addEventListener('click', function() {
-                        // Collapse all other cards
-                        cards.forEach(c => {
-                            if (c !== this) {
-                                const target = document.querySelector(c.dataset.bsTarget);
-                                if (target.classList.contains('show')) {
-                                    bootstrap.Collapse.getInstance(target).hide();
-                                }
-                            }
-                        });
-                    });
-                });
-            });
-        </script>
-
-
-
-
+        <!-- Membership Modal -->
         <div class="modal fade" id="membershipModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header header-gradient">
-                        <h5 class="modal-title"><i class="bi bi-people"></i> <span id="modalTitle"
-                                style="color: white;">Add
+                        <h5 class="modal-title"><i class="bi bi-people"></i> <span id="modalTitle" style="color: white;">Add
                                 Membership</span></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
@@ -761,7 +721,40 @@
             </div>
         </div>
 
+ <!-- JS: Highlight selected card -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
+                cards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        // Remove 'selected' from all
+                        cards.forEach(c => c.closest('.member-card').classList.remove('selected'));
+                        // Add 'selected' to the clicked one
+                        this.closest('.member-card').classList.add('selected');
+                    });
+                });
+            });
+        </script>
 
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
+                cards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        // Collapse all other cards
+                        cards.forEach(c => {
+                            if (c !== this) {
+                                const target = document.querySelector(c.dataset.bsTarget);
+                                if (target.classList.contains('show')) {
+                                    bootstrap.Collapse.getInstance(target).hide();
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
         <script>
             const csrfToken = "{{ csrf_token() }}";
 
@@ -851,29 +844,40 @@
             });
 
             // delegate removal for categories
-            document.getElementById('categoriesList').addEventListener('click', function(e) {
-                if (e.target && e.target.matches('.remove-category')) {
-                    const li = e.target.closest('li');
-                    const id = li.dataset.id;
-                    if (!confirm('Delete category?')) return;
-                    fetch("{{ url('/membership/category/delete') }}/" + id, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken
-                            }
-                        })
-                        .then(r => r.json())
-                        .then(() => {
-                            li.remove();
-                            // remove from select
-                            const sel = document.getElementById('category_id');
-                            Array.from(sel.options).forEach(opt => {
-                                if (opt.value == id) opt.remove();
-                            });
-                        })
-                        .catch(e => console.error(e));
-                }
-            });
+document.getElementById('categoriesList').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('remove-category')) {
+        const li = e.target.closest('li');
+        const id = li.dataset.id;
+
+        if (!confirm('Delete category?')) return;
+
+        fetch("{{ route('membership.category.delete', '') }}/" + id, {
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
+})
+
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                li.remove(); // remove from list
+                // remove from select dropdown
+                const sel = document.getElementById('category_id');
+                Array.from(sel.options).forEach(opt => {
+                    if (opt.value == id) opt.remove();
+                });
+            } else {
+                alert('Failed to delete category');
+            }
+        })
+        .catch(err => console.error(err));
+    }
+});
+
 
             // Add installment
             document.getElementById('addInstallBtn').addEventListener('click', function() {
@@ -911,29 +915,33 @@
                     .catch(e => console.error(e));
             });
 
-            // remove installment
-            document.getElementById('installmentsList').addEventListener('click', function(e) {
-                if (e.target && e.target.matches('.remove-install')) {
-                    const li = e.target.closest('li');
-                    const id = li.dataset.id;
-                    if (!confirm('Delete plan?')) return;
-                    fetch("{{ url('/membership/installment/delete') }}/" + id, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken
-                            }
-                        })
-                        .then(r => r.json())
-                        .then(() => {
-                            li.remove();
-                            const sel = document.getElementById('installment_id');
-                            Array.from(sel.options).forEach(opt => {
-                                if (opt.value == id) opt.remove();
-                            });
-                        })
-                        .catch(e => console.error(e));
-                }
+document.getElementById('installmentsList').addEventListener('click', function(e) {
+    if (e.target && e.target.matches('.remove-install')) {
+        const li = e.target.closest('li');
+        const id = li.dataset.id;
+        if (!confirm('Delete plan?')) return;
+
+        fetch("{{ route('membership.installment.delete', '') }}/" + id, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(r => r.json())
+        .then(() => {
+            li.remove();
+            const sel = document.getElementById('installment_id');
+            Array.from(sel.options).forEach(opt => {
+                if (opt.value == id) opt.remove();
             });
+        })
+        .catch(e => console.error(e));
+    }
+});
+
         </script>
 
     @endsection

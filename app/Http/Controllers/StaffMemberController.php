@@ -16,7 +16,7 @@ class StaffMemberController extends Controller
 
         // Fetch staff members associated with the current gym
         $staff = DB::table('staff_members')->where('gym_id', $gym_id)->get();
-
+ 
         // If editing, get the staff info, ensuring it belongs to the current gym
         $editStaff = null;
         if ($request->has('edit_id')) {
