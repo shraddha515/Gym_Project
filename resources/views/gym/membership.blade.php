@@ -397,8 +397,8 @@
             <h4 class="text-white"><i class="bi bi-card-list me-2"></i> List</h4>
             <div>
                 <!-- <button class="btn btn-outline-dark me-2" onclick="location.href='{{ route('gym.membership') }}'">
-                                            <i class="bi bi-list"></i> Membership List
-                                        </button>  -->
+                                                    <i class="bi bi-list"></i> Membership List
+                                                </button>  -->
                 <button class="btn btn-tertiary" data-bs-toggle="modal" data-bs-target="#membershipModal"
                     style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%); color:white;">
                     <i class="bi bi-plus-lg"></i> Add
@@ -721,7 +721,7 @@
             </div>
         </div>
 
- <!-- JS: Highlight selected card -->
+        <!-- JS: Highlight selected card -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
@@ -734,10 +734,7 @@
                     });
                 });
             });
-        </script>
 
-
-        <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
                 cards.forEach(card => {
@@ -754,8 +751,7 @@
                     });
                 });
             });
-        </script>
-        <script>
+
             const csrfToken = "{{ csrf_token() }}";
 
             // open edit modal and fill
@@ -844,39 +840,39 @@
             });
 
             // delegate removal for categories
-document.getElementById('categoriesList').addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('remove-category')) {
-        const li = e.target.closest('li');
-        const id = li.dataset.id;
+            document.getElementById('categoriesList').addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-category')) {
+                    const li = e.target.closest('li');
+                    const id = li.dataset.id;
 
-        if (!confirm('Delete category?')) return;
+                    if (!confirm('Delete category?')) return;
 
-        fetch("{{ route('membership.category.delete', '') }}/" + id, {
-    method: 'POST',
-    headers: {
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({})
-})
+                    fetch("{{ route('membership.category.delete', '') }}/" + id, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({})
+                        })
 
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                li.remove(); // remove from list
-                // remove from select dropdown
-                const sel = document.getElementById('category_id');
-                Array.from(sel.options).forEach(opt => {
-                    if (opt.value == id) opt.remove();
-                });
-            } else {
-                alert('Failed to delete category');
-            }
-        })
-        .catch(err => console.error(err));
-    }
-});
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                li.remove(); // remove from list
+                                // remove from select dropdown
+                                const sel = document.getElementById('category_id');
+                                Array.from(sel.options).forEach(opt => {
+                                    if (opt.value == id) opt.remove();
+                                });
+                            } else {
+                                alert('Failed to delete category');
+                            }
+                        })
+                        .catch(err => console.error(err));
+                }
+            });
 
 
             // Add installment
@@ -915,33 +911,32 @@ document.getElementById('categoriesList').addEventListener('click', function(e) 
                     .catch(e => console.error(e));
             });
 
-document.getElementById('installmentsList').addEventListener('click', function(e) {
-    if (e.target && e.target.matches('.remove-install')) {
-        const li = e.target.closest('li');
-        const id = li.dataset.id;
-        if (!confirm('Delete plan?')) return;
+            document.getElementById('installmentsList').addEventListener('click', function(e) {
+                if (e.target && e.target.matches('.remove-install')) {
+                    const li = e.target.closest('li');
+                    const id = li.dataset.id;
+                    if (!confirm('Delete plan?')) return;
 
-        fetch("{{ route('membership.installment.delete', '') }}/" + id, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        })
-        .then(r => r.json())
-        .then(() => {
-            li.remove();
-            const sel = document.getElementById('installment_id');
-            Array.from(sel.options).forEach(opt => {
-                if (opt.value == id) opt.remove();
+                    fetch("{{ route('membership.installment.delete', '') }}/" + id, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({})
+                        })
+                        .then(r => r.json())
+                        .then(() => {
+                            li.remove();
+                            const sel = document.getElementById('installment_id');
+                            Array.from(sel.options).forEach(opt => {
+                                if (opt.value == id) opt.remove();
+                            });
+                        })
+                        .catch(e => console.error(e));
+                }
             });
-        })
-        .catch(e => console.error(e));
-    }
-});
-
         </script>
 
     @endsection

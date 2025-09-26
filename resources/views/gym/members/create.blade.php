@@ -214,7 +214,7 @@
 
                     <div class="col-12">
                         <label class="form-label">Photo Capture</label>
-                        <input type="file" name="photo" class="form-control" accept="image/*" capture="camera">
+                        <input type="file" name="photo" class="form-control" accept="image/*" capture="environment">
                     </div>
 
                     {{-- @if (isset($member) && $member->photo_path)

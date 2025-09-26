@@ -199,7 +199,7 @@
         .main-card {
             color: white;
             text-align: center;
-            font-size: 12px;
+            font-size: 20px;
             font-weight: bold;
 
         }
@@ -326,70 +326,79 @@
             <h3>Gym-Suvidha</h3>
         </div>
         <button class="btn-close d-lg-none sidebar-close-btn position-absolute top-0 end-0 m-2"
-            id="sidebar-close-btn"></button>
+            id="sidebar-close-btn">
+        </button>
 
 
         <div class="sidebar-menu">
             @php
-            $user = Auth::user();
-            $role = $user?->role;
+                $user = Auth::user();
+                $role = $user?->role;
             @endphp
 
+            {{-- Conditional Links Based on Role --}}
+            {{-- SuperAdmin Links --}}
             @if ($user && $role === 'superadmin')
-            <a href="{{ route('superadmin.dashboard') }}" class="active"><i class="bi bi-speedometer2"></i>
-                SuperAdmin Dashboard</a>
+                <a href="{{ route('superadmin.dashboard') }}" class="active"><i class="bi bi-speedometer2"></i>
+                    SuperAdmin Dashboard</a>
+
+
             @elseif($user && $role === 'owner')
-            <a class="nav-link" href="{{ route('gym.dashboard.members.filter') }}">
-                <i class="bi bi-clock-history me-2"></i> Gym Dashboard
-            </a>
-
-
-
-
-            {{-- Members Dropdown --}}
-            <a class="sidebar-dropdown-toggle collapsed" data-bs-toggle="collapse" href="#members-collapse"
-                role="button" aria-expanded="false" aria-controls="members-collapse">
-                <i class="bi bi-people"></i> Members <i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <div class="collapse" id="members-collapse">
-                <a class="sidebar-dropdown-item" href="{{ route('gym.members.index') }}">
-                    <i class="bi bi-list-ul"></i> Add Members
-                </a>
-                <a class="sidebar-dropdown-item" href="{{ route('gym.staff.index') }}">
-                    <i class="bi bi-person-badge"></i> Staff Members
+                <a class="nav-link" href="{{ route('gym.members.filter') }}">
+                    <i class="bi bi-clock-history me-2"></i> Gym Dashboard
                 </a>
 
-            </div>
-            <a href="{{ route('gym.membership') }}"><i class="bi bi-people"></i> Membership Type</a>
 
-            {{-- <a href="{{ route('gym.packages') }}"><i class="bi bi-box"></i> Packages</a>
-            <a href="{{ route('gym.trainers') }}"><i class="bi bi-person-badge"></i> Trainers</a> --}}
-            <a href="{{ route('gym.report') }}"><i class="bi bi-graph-up"></i> Reports</a>
-            <a href="{{ route('expenses.index') }}"><i class="bi bi-cash"></i> Expenses</a>
+                {{-- Members Dropdown --}}
+                <a class="sidebar-dropdown-toggle collapsed" data-bs-toggle="collapse" href="#members-collapse"
+                    role="button" aria-expanded="false" aria-controls="members-collapse">
+                    <i class="bi bi-people"></i> Members <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div class="collapse" id="members-collapse">
+                    <a class="sidebar-dropdown-item" href="{{ route('gym.members.index') }}">
+                        <i class="bi bi-list-ul"></i> Add Members
+                    </a>
+                    <a class="sidebar-dropdown-item" href="{{ route('gym.staff.index') }}">
+                        <i class="bi bi-person-badge"></i> Staff Members
+                    </a>
+
+                </div>
+
+                <a href="{{ route('gym.membership') }}"><i class="bi bi-people"></i> Membership Type</a>
+
+                <a href="{{ route('gym.report') }}"><i class="bi bi-graph-up"></i> Reports</a>
+
+                <a href="{{ route('expenses.index') }}"><i class="bi bi-cash"></i> Expenses</a>
             @endif
 
             {{-- Settings is accessible for both roles --}}
-            @if($user && ($role === 'superadmin' || $role === 'owner'))
-            <a href="{{ route('gym.settings') }}"><i class="bi bi-gear"></i> Settings</a>
+            @if ($user && ($role === 'superadmin' || $role === 'owner'))
+                <a href="{{ route('gym.settings') }}"><i class="bi bi-gear"></i> Settings</a>
             @endif
 
         </div>
+
         <form method="POST" action="{{ route('admin.logout') }}" class="mt-auto">
             @csrf
             <button type="submit" class="btn btn-logout w-70">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </button>
         </form>
+
     </div>
 
     <div class="topbar" id="topbar">
+
         <button class="sidebar-toggle" id="sidebar-toggle-btn">
             <i class="bi bi-list"></i>
         </button>
+
         <h4 class="topbar-title">@yield('page-title', 'Admin Dashboard')</h4>
+
         <span class="welcome-text d-none d-md-block">
             Welcome, <strong>{{ Auth::user()->name ?? 'Admin' }}</strong>
         </span>
+        
     </div>
 
     <div class="content" id="main-content">

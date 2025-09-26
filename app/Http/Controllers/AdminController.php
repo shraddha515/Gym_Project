@@ -129,7 +129,7 @@ class AdminController extends Controller
         ->limit(5)
         ->get();
 
-    return view('gym.Dashboard.members_filter', compact(
+    return view('gym.members_filter', compact(
         'members', 'filter',
         'activeMembers', 'activeMembersCount',
         'staff', 'staffCount',
@@ -140,53 +140,45 @@ class AdminController extends Controller
 
 
 
-public function renewSubmit(Request $request, $id)
-{
-    $request->validate([
-        'new_expiry_date' => 'required|date|after:today',
-        'renew_amount'    => 'required|numeric|min:0',
-    ]);
+    public function renewMember($id)
+    {
+        $user = Auth::user();
+        $gym_id = $user->gym_id;
+        $today = now()->toDateString();
 
-    // Fetch the current member record
-    $member = DB::table('members')->where('id', $id)->first();
-    if (!$member) {
-        return redirect()->back()->with('error', 'Member not found.');
+        // Fetch member with membership info safely (handle collation)
+        $member = DB::table('members')
+            ->join('memberships', function ($join) {
+                $join->on(DB::raw('members.membership_type COLLATE utf8mb4_general_ci'), '=', DB::raw('memberships.name COLLATE utf8mb4_general_ci'));
+            })
+            ->select('members.*', 'memberships.period_days')
+            ->where('members.id', $id)
+            ->where('members.gym_id', $gym_id)
+            ->first();
+
+        if (!$member) {
+            return redirect()->back()->with('error', 'Member not found!');
+        }
+
+        // Safe period_days
+        $periodDays = $member->period_days ?? 30;
+
+        // Calculate new expiry from today
+        $newExpiry = now()->addDays($periodDays)->toDateString();
+
+        // Update member's membership period and increase renewal_count
+        DB::table('members')
+            ->where('id', $id)
+            ->where('gym_id', $gym_id)
+            ->update([
+                'membership_valid_from' => $today,
+                'membership_valid_to'   => $newExpiry,
+                'renewal_count'         => $member->renewal_count + 1,
+            ]);
+
+        return redirect()->back()->with('success', 'Membership renewed successfully!');
     }
 
-    // Insert a new entry for history (clone old + update renew info)
-    $newId = DB::table('members')->insertGetId([
-        'gym_id'              => $member->gym_id,
-        'member_id'           => $member->member_id, // keep same profile ID
-        'first_name'          => $member->first_name,
-        'last_name'           => $member->last_name,
-        'gender'              => $member->gender,
-        'date_of_birth'       => $member->date_of_birth,
-        'aadhar_no'           => $member->aadhar_no,
-        'mobile_number'       => $member->mobile_number,
-        'address'             => $member->address,
-        'weight'              => $member->weight,
-        'height'              => $member->height,
-        'fat_percentage'      => $member->fat_percentage,
-        'photo_path'          => $member->photo_path,
-        'interested_area'     => $member->interested_area,
-        'membership_type'     => $member->membership_type,
-        'membership_valid_from' => now()->toDateString(),
-        'membership_valid_to'   => $request->new_expiry_date,
-        'last_payment_date'     => now()->toDateString(),
-        'fees_paid'           => ($member->fees_paid ?? 0) + $request->renew_amount,
-        'fees_due'            => max(($member->fees_due ?? 0) - $request->renew_amount, 0),
-        'renewal_count'       => ($member->renewal_count ?? 0) + 1,
-        'created_at'          => now(),
-        'updated_at'          => now(),
-        'assigned_staff_id'   => $member->assigned_staff_id,
-        'status'              => 'active', // mark new record as active
-    ]);
-
-    // Optionally, mark old record as inactive
-    DB::table('members')->where('id', $id)->update(['status' => 'renewed']);
-
-    return redirect()->back()->with('success', 'Membership renewed successfully!');
-}
 
 
 

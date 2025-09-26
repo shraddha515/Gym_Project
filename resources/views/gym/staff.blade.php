@@ -3,6 +3,133 @@
 @section('page-title', 'Staff Members')
 
 @section('content')
+@section('styles')
+    <style>
+        .form-label{
+            color: black
+        }
+        /* General */
+        .dashboard-heading {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle !important;
+            padding: 0.55rem 0.75rem;
+        }
+
+        .table th {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .table td {
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn-action {
+            font-size: 0.75rem;
+            padding: 4px 6px;
+            border-radius: 6px;
+            color: #fff;
+            border: none;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            filter: brightness(110%);
+        }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
+
+        .btn-action.btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+        }
+
+        .btn-action.btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .btn-action.btn-info {
+            background: linear-gradient(45deg, #0dcaf0, #0ea5e9);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.3em 0.5em;
+        }
+
+        /* Mobile Cards */
+        .member-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .member-card:hover {
+            border-color: #3b82f6;
+        }
+
+        .member-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .member-fields .list-group-item {
+            font-size: 0.82rem;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            border: none;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.2em 0.5em;
+        }
+
+        /* Responsive */
+        @media(max-width:767px) {
+            .member-card {
+                margin-bottom: 0.75rem;
+            }
+
+            .member-name {
+                font-size: 0.85rem;
+            }
+
+            .member-fields .list-group-item {
+                font-size: 0.78rem;
+                padding: 5px 6px;
+            }
+
+            .btn-action {
+                font-size: 0.7rem;
+                padding: 3px 4px;
+            }
+
+            .dashboard-heading {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+@endsection
     <div class="container-fluid py-4">
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
@@ -226,130 +353,4 @@
 @endsection
 
 
-@section('styles')
-    <style>
-        .form-label{
-            color: black
-        }
-        /* General */
-        .dashboard-heading {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #ffffff;
-        }
 
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle !important;
-            padding: 0.55rem 0.75rem;
-        }
-
-        .table th {
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .table td {
-            font-size: 0.9rem;
-        }
-
-        /* Buttons */
-        .btn-action {
-            font-size: 0.75rem;
-            padding: 4px 6px;
-            border-radius: 6px;
-            color: #fff;
-            border: none;
-            text-align: center;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .btn-action:hover {
-            filter: brightness(110%);
-        }
-
-        .btn-action:active {
-            transform: scale(0.95);
-        }
-
-        .btn-action.btn-primary {
-            background: linear-gradient(45deg, #3b82f6, #2563eb);
-        }
-
-        .btn-action.btn-danger {
-            background: linear-gradient(45deg, #ef4444, #dc2626);
-        }
-
-        .btn-action.btn-info {
-            background: linear-gradient(45deg, #0dcaf0, #0ea5e9);
-        }
-
-        /* Badges */
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.3em 0.5em;
-        }
-
-        /* Mobile Cards */
-        .member-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            background: #fff;
-            transition: all 0.2s ease;
-        }
-
-        .member-card:hover {
-            border-color: #3b82f6;
-        }
-
-        .member-name {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #1f2937;
-        }
-
-        .member-fields .list-group-item {
-            font-size: 0.82rem;
-            padding: 6px 8px;
-            display: flex;
-            justify-content: space-between;
-            border: none;
-        }
-
-        .status-badge {
-            font-size: 0.8rem;
-            padding: 0.2em 0.5em;
-        }
-
-        /* Responsive */
-        @media(max-width:767px) {
-            .member-card {
-                margin-bottom: 0.75rem;
-            }
-
-            .member-name {
-                font-size: 0.85rem;
-            }
-
-            .member-fields .list-group-item {
-                font-size: 0.78rem;
-                padding: 5px 6px;
-            }
-
-            .btn-action {
-                font-size: 0.7rem;
-                padding: 3px 4px;
-            }
-
-            .dashboard-heading {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-@endsection

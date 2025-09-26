@@ -40,7 +40,7 @@ class LoginController extends Controller
         if ($user->role === 'superadmin') {
             return redirect()->route('superadmin.dashboard');
         } else {
-            return redirect()->route('gym.dashboard.members.filter');
+            return redirect()->route('gym.members.filter');
         }
     }
 

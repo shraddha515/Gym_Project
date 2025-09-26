@@ -218,23 +218,7 @@
 
             {{-- Search + Export --}}
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
-                <form id="searchForm" action="{{ route('gym.members.index') }}" method="GET"
-                    class="d-flex flex-grow-1 gap-2">
-                    <input type="text" id="searchInput" name="search" class="form-control"
-                        placeholder="Search by name, ID, mobile, or PT..." value="{{ request('search') }}"
-                        style="border:1px solid #cbd5e1; padding:0.45rem 0.75rem; font-size:0.88rem; border-radius:4px; background:#f8fafc; color:var(--text-dark);">
-                    <button type="submit" class="btn "
-                        style="font-size:1rem; padding:0.45rem 0.75rem; background-color: #162bf94f;">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    @if (request('search'))
-                        <a href="{{ route('gym.members.index') }}" class="btn btn-secondary"
-                            style="font-size:0.85rem; padding:0.45rem 0.75rem;">
-                            <i class="bi bi-x-circle"></i>
-                        </a>
-                    @endif
-                </form>
-
+                
                 <div class="dropdown">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         style="font-size:0.85rem; padding:0.45rem 0.75rem;">
@@ -254,87 +238,84 @@
             {{-- Desktop Table --}}
             <div class="d-none d-md-block">
                 <div class="table-responsive">
-                    <table class="table align-middle table-hover" style="border-collapse: separate; border-spacing:0 6px;">
-                        <thead style="background: var(--accent-gradient); color:#fff; font-weight:500; font-size:0.9rem;">
-                            <tr>
-                                <th>Photo</th>
-                                <th>Member ID</th>
-                                <th>Name</th>
-                                <th>Aadhar no</th>
-                                <th>Joining Date</th>
-                                <th>Fees Paid</th> {{-- NEW --}}
-                                <th>Fees Due</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody >
-                            @forelse($members as $member)
-                                <tr style="background:#f8fafc; border-radius:6px;">
-                                    <td>
-                                        @if ($member->photo_path)
-                                            <img src="{{ url('public/storage/' . $member->photo_path) }}"
-                                                class="rounded-circle" width="45" height="45"
-                                                style="object-fit:cover;">
-                                        @else
-                                            <div class="rounded-circle bg-gray-300 d-flex justify-content-center align-items-center"
-                                                style="width:45px;height:45px;">
-                                                <i class="bi bi-person-circle text-muted" style="font-size:1.2rem;"></i>
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td style="font-weight:500; color:var(--text-dark); font-size:0.87rem;">
-                                        {{ $member->member_id }}</td>
-                                    <td style="font-weight:500; color:var(--text-dark); font-size:0.87rem;">
-                                        {{ $member->first_name }} {{ $member->last_name }}</td>
-                                    <td style="color:var(--text-dark); font-size:0.86rem;">
-                                        {{ $member->aadhar_no ?? '-' }}</td>
+                    <!-- Include DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-                                    <td style="color:var(--text-dark); font-size:0.86rem;">
-                                        {{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</td>
+<!-- Include jQuery and DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                                    <td style="color:var(--text-dark); font-size:0.86rem;">{{ $member->fees_paid ?? '0' }}
-                                    </td> {{-- NEW --}}
-                                    <td style="color:var(--text-dark); font-size:0.86rem;">{{ $member->fees_due ?? '0' }}
-                                    </td> {{-- NEW --}}
-                                    <td>
-                                        <span
-                                            class="badge status-badge {{ $member->status == 'Active' ? 'bg-success' : 'bg-secondary' }}"
-                                            style="font-size:0.75rem; cursor:pointer;"
-                                            data-member-id="{{ $member->id }}">
-                                            {{ $member->status ?? 'Inactive' }}
-                                        </span>
-                                    </td>
+<table id="membersTable" class="table align-middle table-hover" style="border-collapse: separate; border-spacing:0 6px;">
+    <thead style="background: var(--accent-gradient); color:#fff; font-weight:500; font-size:0.9rem;">
+        <tr>
+            <th>Photo</th>
+            <th>Member ID</th>
+            <th>Name</th>
+            <th>Aadhar no</th>
+            <th>Joining Date</th>
+            <th>Fees Paid</th>
+            <th>Fees Due</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($members as $member)
+            <tr style="background:#f8fafc; border-radius:6px;">
+                <td>
+                    @if ($member->photo_path)
+                        <img src="{{ url('public/storage/' . $member->photo_path) }}"
+                            class="rounded-circle" width="45" height="45"
+                            style="object-fit:cover;">
+                    @else
+                        <div class="rounded-circle bg-gray-300 d-flex justify-content-center align-items-center"
+                            style="width:45px;height:45px;">
+                            <i class="bi bi-person-circle text-muted" style="font-size:1.2rem;"></i>
+                        </div>
+                    @endif
+                </td>
+                <td>{{ $member->member_id }}</td>
+                <td>{{ $member->first_name }} {{ $member->last_name }}</td>
+                <td>{{ $member->aadhar_no ?? '-' }}</td>
+                <td>{{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</td>
+                <td>{{ $member->fees_paid ?? '0' }}</td>
+                <td>{{ $member->fees_due ?? '0' }}</td>
+                <td>
+                    <span class="badge status-badge {{ $member->status == 'Active' ? 'bg-success' : 'bg-secondary' }}">
+                        {{ $member->status ?? 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="{{ route('gym.members.show', $member->id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
+                        <a href="{{ route('gym.members.edit', $member->id) }}" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                        <form action="{{ route('gym.members.destroy', $member->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">No members found.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
 
-                                    <td>
-                                        <div class="d-flex gap-1 flex-wrap">
-                                            <a href="{{ route('gym.members.show', $member->id) }}"
-                                                class="btn btn-outline-primary btn-sm"
-                                                style="font-size:0.8rem; padding:0.35rem 0.5rem;"><i
-                                                    class="bi bi-eye"></i></a>
+<script>
+    $(document).ready(function() {
+        $('#membersTable').DataTable({
+            "paging": true,
+            "searching": true,  // ✅ built-in search/filter
+            "ordering": true,
+            "info": true
+        });
+    });
+</script>
 
-                                            <a href="{{ route('gym.members.edit', $member->id) }}"
-                                                class="btn btn-outline-warning btn-sm"
-                                                style="font-size:0.8rem; padding:0.35rem 0.5rem;"><i
-                                                    class="bi bi-pencil"></i></a>
-
-                                            <form action="{{ route('gym.members.destroy', $member->id) }}" method="POST"
-                                                onsubmit="return confirm('Are you sure?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                    style="font-size:0.8rem; padding:0.35rem 0.5rem;"><i
-                                                        class="bi bi-trash"></i></button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">No members found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
