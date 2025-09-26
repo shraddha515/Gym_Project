@@ -314,51 +314,123 @@
 
 
         <div class="table-responsive d-none d-md-block">
-            <table class="table align-middle shadow-sm custom-table">
-                <thead>
-                    <tr class="custom-table-header">
-                        <th>Member ID</th>
-                        <th>Name</th>
-                        <th>Mobile</th>
-                        <th>Aadhar no</th>
-                        <th>Join Date</th>
-                        <th>Expiry Date</th>
-                        <th>Package</th>
-                        <th>Fees Paid</th>
-                        <th>Fees Due</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($members as $member)
-                        <tr>
-                            <td>{{ $member->member_id }}</td>
-                            <td>{{ $member->first_name }} {{ $member->last_name }}</td>
-                            <td>{{ $member->mobile_number }}</td>
-                            <td>{{ $member->aadhar_no ?? '-' }}</td>
-                            <td>{{ $member->membership_valid_from }}</td>
-                            <td class="{{ $filter === 'expired' ? 'text-expired' : 'text-expiring' }}">
-                                {{ $member->membership_valid_to }}
-                            </td>
-                            <td>{{ $member->membership_type }}</td>
-                            <td>{{ $member->fees_paid ?? '-' }}</td>
-                            <td>{{ $member->fees_due ?? '-' }}</td>
-                            <td class="text-center">
-                                <form action="{{ route('members.renew', $member->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-renew btn-sm">Renew</button>
-                                </form>
-                            </td>
+    <table class="table align-middle shadow-sm custom-table">
+        <thead>
+            <tr class="custom-table-header">
+                <th>Member ID</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Aadhar no</th>
+                <th>Join Date</th>
+                <th>Expiry Date</th>
+                <th>Package</th>
+                <th>Fees Paid</th>
+                <th>Fees Due</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($members as $member)
+                <tr>
+                    <td>{{ $member->member_id }}</td>
+                    <td>{{ $member->first_name }} {{ $member->last_name }}</td>
+                    <td>{{ $member->mobile_number }}</td>
+                    <td>{{ $member->aadhar_no ?? '-' }}</td>
+                    <td>{{ $member->membership_valid_from }}</td>
+                    <td class="{{ $filter === 'expired' ? 'text-expired' : 'text-expiring' }}">
+                        {{ $member->membership_valid_to }}
+                    </td>
+                    <td>{{ $member->membership_type }}</td>
+                    <td>{{ $member->fees_paid ?? '-' }}</td>
+                    <td>{{ $member->fees_due ?? '-' }}</td>
+                    <td class="text-center">
+                        <button type="button" 
+                                class="btn btn-renew btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#renewModal"
+                                data-id="{{ $member->id }}"
+                                data-name="{{ $member->first_name }} {{ $member->last_name }}"
+                                data-package="{{ $member->membership_type }}"
+                                data-expiry="{{ $member->membership_valid_to }}">
+                            Renew
+                        </button>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="10" class="text-center text-muted">No members found.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center text-muted">No members found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+<!-- Renew Modal -->
+<div class="modal fade" id="renewModal" tabindex="-1" aria-labelledby="renewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+  <form method="POST" id="renewForm" action="{{ route('members.renew', 0) }}">
+    @csrf
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title text-black" id="renewModalLabel">Renew Membership</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+            <input type="hidden" name="member_id" id="renewMemberId">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label text-black">Member Name</label>
+                    <input type="text" class="form-control" id="renewMemberName" name="member_name" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-black">Current Package</label>
+                    <input type="text" class="form-control" id="renewMemberPackage" name="membership_type" readonly>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label text-black">Current Expiry Date</label>
+                    <input type="text" class="form-control" id="renewCurrentExpiry" name="current_expiry" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-black">New Expiry Date</label>
+                    <input type="date" class="form-control" name="new_expiry_date" required>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Confirm Renew</button>
+        </div>
+    </div>
+    </form>
+
+  </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#renewModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+
+            var memberId = button.data('id');
+            var memberName = button.data('name');
+            var memberPackage = button.data('package');
+            var memberExpiry = button.data('expiry');
+
+            $('#renewMemberId').val(memberId);
+            $('#renewMemberName').val(memberName);
+            $('#renewMemberPackage').val(memberPackage);
+            $('#renewCurrentExpiry').val(memberExpiry);
+
+            // ✅ Correct: use Laravel's url() so folder name is included
+            $('#renewForm').attr('action', "{{ url('members') }}/" + memberId + "/renew");
+        });
+    });
+</script>
+
+
 
 
 

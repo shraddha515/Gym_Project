@@ -72,109 +72,89 @@ class AdminController extends Controller
     }
 
 
-   public function filterMembers(Request $request)
-{
-    $user = Auth::user();
-    $gym_id = $user->gym_id;
-    $today = now()->toDateString();
-    $filter = $request->get('filter', 'expiring');
+       public function filterMembers(Request $request)
+        {
+            $user = Auth::user();
+            $gym_id = $user->gym_id;
+            $today = now()->toDateString();
+            $filter = $request->get('filter', 'expiring');
 
-    // ----- Table Data -----
-    $query = DB::table('members')
-        ->where('gym_id', $gym_id);
+            // ----- Table Data -----
+            $query = DB::table('members')
+                ->where('gym_id', $gym_id);
 
-    if ($filter === 'expiring') {
-        $query->whereDate('membership_valid_to', $today);
-    } elseif ($filter === 'expired') {
-        $query->whereDate('membership_valid_to', '<', $today);
-    }
+            if ($filter === 'expiring') {
+                $query->whereDate('membership_valid_to', $today);
+            } elseif ($filter === 'expired') {
+                $query->whereDate('membership_valid_to', '<', $today);
+            }
 
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('first_name', 'like', "%$search%")
-              ->orWhere('last_name', 'like', "%$search%")
-              ->orWhere('mobile_number', 'like', "%$search%")
-              ->orWhere('aadhar_no', 'like', "%$search%");
-        });
-    }
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%$search%")
+                      ->orWhere('last_name', 'like', "%$search%")
+                      ->orWhere('mobile_number', 'like', "%$search%")
+                      ->orWhere('aadhar_no', 'like', "%$search%");
+                });
+            }
 
-    $members = $query->orderBy('membership_valid_to', 'asc')->get();
+            $members = $query->orderBy('membership_valid_to', 'asc')->get();
 
-     // ----- Cards Data -----
-    $activeMembers = DB::table('members')
-        ->where('gym_id', $gym_id)
-        ->whereDate('membership_valid_to', '>=', $today)
-        ->get();
-    $activeMembersCount = $activeMembers->count();
+             // ----- Cards Data -----
+            $activeMembers = DB::table('members')
+                ->where('gym_id', $gym_id)
+                ->whereDate('membership_valid_to', '>=', $today)
+                ->get();
+            $activeMembersCount = $activeMembers->count();
 
-    $staff = DB::table('staff_members')
-        ->where('gym_id', $gym_id)
-        ->get();
-    $staffCount = $staff->count();
+            $staff = DB::table('staff_members')
+                ->where('gym_id', $gym_id)
+                ->get();
+            $staffCount = $staff->count();
 
-    $totalFees = DB::table('members')
-        ->where('gym_id', $gym_id)
-        ->sum('fees_paid'); // instead of amount
+            $totalFees = DB::table('members')
+                ->where('gym_id', $gym_id)
+                ->sum('fees_paid'); // instead of amount
 
-    $totalExpenses = DB::table('expenses')
-        ->where('gym_id', $gym_id)
-        ->sum('amount');
+            $totalExpenses = DB::table('expenses')
+                ->where('gym_id', $gym_id)
+                ->sum('amount');
 
-    $netAmount = $totalFees - $totalExpenses;
+            $netAmount = $totalFees - $totalExpenses;
 
-    $recentMembers = DB::table('members')
-        ->where('gym_id', $gym_id)
-        ->orderBy('membership_valid_from', 'desc')
-        ->limit(5)
-        ->get();
+            $recentMembers = DB::table('members')
+                ->where('gym_id', $gym_id)
+                ->orderBy('membership_valid_from', 'desc')
+                ->limit(5)
+                ->get();
 
-    return view('gym.members_filter', compact(
-        'members', 'filter',
-        'activeMembers', 'activeMembersCount',
-        'staff', 'staffCount',
-        'netAmount', 'recentMembers'
-    ));
-}
-
-
-
-
-    public function renewMember($id)
-    {
-        $user = Auth::user();
-        $gym_id = $user->gym_id;
-        $today = now()->toDateString();
-
-        // Fetch member with membership info safely (handle collation)
-        $member = DB::table('members')
-            ->join('memberships', function ($join) {
-                $join->on(DB::raw('members.membership_type COLLATE utf8mb4_general_ci'), '=', DB::raw('memberships.name COLLATE utf8mb4_general_ci'));
-            })
-            ->select('members.*', 'memberships.period_days')
-            ->where('members.id', $id)
-            ->where('members.gym_id', $gym_id)
-            ->first();
-
-        if (!$member) {
-            return redirect()->back()->with('error', 'Member not found!');
+            return view('gym.members_filter', compact(
+                'members', 'filter',
+                'activeMembers', 'activeMembersCount',
+                'staff', 'staffCount',
+                'netAmount', 'recentMembers'
+            ));
         }
 
-        // Safe period_days
-        $periodDays = $member->period_days ?? 30;
 
-        // Calculate new expiry from today
-        $newExpiry = now()->addDays($periodDays)->toDateString();
+    public function renewSubmit(Request $request, $id)
+    {
+        // Get current member data
+        $member = DB::table('members')->where('id', $id)->first();
 
-        // Update member's membership period and increase renewal_count
-        DB::table('members')
-            ->where('id', $id)
-            ->where('gym_id', $gym_id)
-            ->update([
-                'membership_valid_from' => $today,
-                'membership_valid_to'   => $newExpiry,
-                'renewal_count'         => $member->renewal_count + 1,
-            ]);
+        if (!$member) {
+            return redirect()->back()->with('error', 'Member not found.');
+        }
+
+        // Prepare updated data
+        $updateData = [
+            'membership_valid_to' => $request->input('new_expiry_date'),
+         ];
+
+
+        // Update the member record
+        DB::table('members')->where('id', $id)->update($updateData);
 
         return redirect()->back()->with('success', 'Membership renewed successfully!');
     }

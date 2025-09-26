@@ -24,7 +24,7 @@ Route::delete('superadmin/delete/{id}', [AdminController::class, 'deleteSuperAdm
 
 // Members Filter + Renew
 Route::get('gym/members/filter', [AdminController::class, 'filterMembers'])->name('gym.members.filter');
-Route::post('members/{id}/renew', [AdminController::class, 'renewMember'])->name('members.renew');
+Route::post('members/{id}/renew', [AdminController::class, 'renewSubmit'])->name('members.renew');
 
 // Members Management
 Route::get('members', [MemberController::class, 'index'])->name('gym.members.index');
