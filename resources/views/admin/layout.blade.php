@@ -18,12 +18,12 @@
 
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #243949 0%, #517fa4 100%);
-            --sidebar-gradient: linear-gradient(180deg, #0f2027 0%, #203a43 100%);
-            --topbar-gradient: linear-gradient(45deg, #5056b5 0%, #60557f 100%);
+            --bg-gradient: linear-gradient(135deg, #082841 0%, #06233ad0 100%);
+            --sidebar-gradient: linear-gradient(180deg, #0f2027 0%, #042a37 100%);
+            --topbar-gradient: linear-gradient(45deg, #023661 0%, #015f70 100%);
             --accent-gradient: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
             --text-light: #e0e0e0;
-            --text-dark: #374151;
+            --text-dark: #090a0d;
             --card-bg: #ffffff;
         }
 
@@ -314,6 +314,23 @@
             background-color: rgba(255, 255, 255, 0.3);
             transform: rotate(90deg);
         }
+         .bg-image-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .bg-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.6);
+    }
+
     </style>
 
     @yield('styles')
@@ -369,6 +386,7 @@
                 <a href="{{ route('gym.report') }}"><i class="bi bi-graph-up"></i> Reports</a>
 
                 <a href="{{ route('expenses.index') }}"><i class="bi bi-cash"></i> Expenses</a>
+                 <a href="{{ route('gym.members.history') }}"><i class="bi bi-cash"></i> Members History</a>
             @endif
 
             {{-- Settings is accessible for both roles --}}
@@ -403,6 +421,10 @@
 
     <div class="content" id="main-content">
         <div class="main-card">
+            <!-- <div class="bg-image-container">
+    <img src="{{ asset('asset/gym-bg.jpg') }}" alt="Gym Background">
+</div> -->
+
             @yield('content')
         </div>
     </div>

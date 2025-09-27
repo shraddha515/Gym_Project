@@ -18,6 +18,9 @@ class MemberController extends Controller
 {
 public function index(Request $request)
 {
+     if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
     // Get the authenticated user and their gym_id
     $user = Auth::user();
     $gym_id = $user->gym_id;
@@ -57,6 +60,7 @@ public function index(Request $request)
 
     public function create()
 {
+
      $user = Auth::user();
     $gym_id = $user->gym_id;
 
@@ -65,7 +69,7 @@ public function index(Request $request)
     $memberId = 'MS' . str_pad(($lastMember->id ?? 0) + 1, 5, '0', STR_PAD_LEFT);
 
     // Fetch all membership types from DB
-    $membershipTypes = DB::table('memberships')->select('id', 'name')->get();
+    $membershipTypes = DB::table('memberships')->select('id', 'name','signup_fee')->get();
     $pts = DB::table('staff_members')
     ->where('type', 'Personal Trainer')
     ->where('active_status', 'Active')
@@ -86,6 +90,7 @@ return view('gym.members.create', compact('memberId', 'membershipTypes', 'pts'))
 
 public function store(Request $request)
 {
+
 
     $user = Auth::user();
     $gym_id = $user->gym_id;
@@ -109,6 +114,7 @@ public function store(Request $request)
         'fat_percentage' => 'nullable|numeric',
         'fees_due' => 'required|numeric',
         'fees_paid' => 'required|numeric',
+        'status' => 'required|in:Active,Inactive',
     ]);
 
     // Generate unique member_id
@@ -143,6 +149,7 @@ public function store(Request $request)
 
     public function show($id)
     {
+
          $user = Auth::user();
     $gym_id = $user->gym_id;
 
@@ -157,6 +164,7 @@ public function store(Request $request)
 
 public function edit($id)
 {
+
      $user = Auth::user();
     $gym_id = $user->gym_id;
 
@@ -167,7 +175,7 @@ public function edit($id)
     }
 
     // Fetch all membership types
-    $membershipTypes = DB::table('memberships')->select('id', 'name')->get();
+    $membershipTypes = DB::table('memberships')->select('id', 'name','signup_fee')->get();
 
     // Fetch all active Personal Trainers
     $pts = DB::table('staff_members')
@@ -185,6 +193,7 @@ public function edit($id)
 
 public function update(Request $request, $id)
 {
+
 
  $user = Auth::user();
     $gym_id = $user->gym_id;
@@ -207,6 +216,7 @@ public function update(Request $request, $id)
         'fat_percentage' => 'nullable|numeric',
          'fees_due' => 'required|numeric',
         'fees_paid' => 'required|numeric',
+        'status' => 'required|in:Active,Inactive',
     ]);
 
     // Handle photo upload
@@ -236,6 +246,7 @@ public function update(Request $request, $id)
 
     public function destroy($id)
     {
+
         $member = DB::table('members')->where('id', $id)->first();
         if (!$member) return redirect()->route('gym.members.index')->with('error', 'Member not found.');
 
@@ -262,6 +273,7 @@ public function update(Request $request, $id)
      */
     public function exportCsv()
 {
+    
     $members = DB::table('members')->get();
 
     $filename = "members_" . date('Ymd_His') . ".csv";

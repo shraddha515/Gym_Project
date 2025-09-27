@@ -16,7 +16,7 @@
             {{-- Left Column: Personal Info & QR Code --}}
             <div class="col-lg-5 mb-3 mb-lg-0">
                 <div class="d-flex flex-column align-items-center text-center">
-                    <img src="{{ url('public/storage/' . $member->photo_path) }}" alt="Member Photo" 
+                    <img src="{{ url('storage/app/public/' . $member->photo_path) }}" alt="Member Photo" 
                          class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px;">
                     <h4 class="text-dark mb-1">{{ $member->first_name }} {{ $member->last_name }}</h4>
                 </div>

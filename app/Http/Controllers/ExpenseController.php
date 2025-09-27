@@ -13,6 +13,9 @@ class ExpenseController extends Controller
     // List + create form on same page
     public function index(Request $request)
     {
+         if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
         $user = Auth::user();
         $gym_id = $user->gym_id;
 

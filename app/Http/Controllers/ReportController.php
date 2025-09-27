@@ -11,6 +11,9 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+         if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
         $user = Auth::user();
         $gym_id = $user->gym_id;
 
@@ -20,16 +23,24 @@ class ReportController extends Controller
         $member_id = $request->member_id ?? null;
 
         // Members
-        $membersQuery = DB::table('members')->where('gym_id', $gym_id)
+        $membersQuery = DB::table('members')
+        ->where('gym_id', $gym_id)
+         
             ->whereBetween('membership_valid_from', [$from, $to]);
 
         if ($member_id) $membersQuery->where('id', $member_id);
 
         $members = $membersQuery->get()->map(function($m){
-            $membership = DB::table('memberships')->where('name', $m->membership_type)->first();
-            $m->amount = $membership->amount ?? 0;
-            return $m;
-        });
+    $m->amount = $m->fees_paid ?? 0;  // members table ka fees_paid
+    
+    // membership name fetch karna
+    $membership = DB::table('memberships')
+                    ->where('id', $m->membership_type) // membership_type me id stored hai
+                    ->first();
+    $m->membership_name = $membership ? $membership->name : 'N/A';
+
+    return $m;
+});
 
         $totalFees = $members->sum('amount');
         $totalMembers = $members->count();
@@ -55,6 +66,9 @@ class ReportController extends Controller
     // PDF Download
     public function downloadPdf(Request $request)
     {
+         if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
         $user = Auth::user();
         $gym_id = $user->gym_id;
 
@@ -68,9 +82,9 @@ class ReportController extends Controller
                 ->leftJoin('memberships as ms', 'm.membership_type', '=', 'ms.name')
                 ->select('m.id',
                          DB::raw("CONCAT(m.first_name,' ',IFNULL(m.last_name,'')) as full_name"),
-                         'm.mobile_number', 'm.membership_type',
+                         'm.mobile_number',  'ms.name as membership_name', // membership name,
                          'm.membership_valid_from', 'm.membership_valid_to',
-                         'ms.amount')
+                         'm.fees_paid as amount')
                 ->where('m.gym_id', $gym_id)
                 ->whereBetween('m.membership_valid_from', [$from, $to])
                 ->when($member_id, fn($q) => $q->where('m.id', $member_id))
@@ -100,6 +114,9 @@ class ReportController extends Controller
     // CSV Download
     public function downloadCsv(Request $request)
     {
+         if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
         $user = Auth::user();
         $gym_id = $user->gym_id;
 
@@ -117,9 +134,9 @@ class ReportController extends Controller
                 ->leftJoin('memberships as ms', 'm.membership_type', '=', 'ms.name')
                 ->select('m.id',
                          DB::raw("CONCAT(m.first_name,' ',IFNULL(m.last_name,'')) as name"),
-                         'm.mobile_number','m.membership_type',
+                         'm.mobile_number', 'ms.name as membership_name',
                          'm.membership_valid_from','m.membership_valid_to',
-                         'ms.amount')
+                         'm.fees_paid as amount')
                 ->where('m.gym_id', $gym_id)
                 ->whereBetween('m.membership_valid_from', [$from,$to])
                 ->when($member_id, fn($q) => $q->where('m.id', $member_id))

@@ -193,7 +193,7 @@
 
         {{-- Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="dashboard-heading">Members List</h2>
+            <h2 class="dashboard-heading"></h2>
             <a href="{{ route('gym.members.create') }}" class="btn   shadow-sm"
                 style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
                 <i class="bi bi-plus-circle me-2"></i> Add
@@ -218,7 +218,7 @@
 
             {{-- Search + Export --}}
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
-                
+
                 <div class="dropdown">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         style="font-size:0.85rem; padding:0.45rem 0.75rem;">
@@ -239,82 +239,88 @@
             <div class="d-none d-md-block">
                 <div class="table-responsive">
                     <!-- Include DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+                    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-<!-- Include jQuery and DataTables JS -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+                    <!-- Include jQuery and DataTables JS -->
+                    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-<table id="membersTable" class="table align-middle table-hover" style="border-collapse: separate; border-spacing:0 6px;">
-    <thead style="background: var(--accent-gradient); color:#fff; font-weight:500; font-size:0.9rem;">
-        <tr>
-            <th>Photo</th>
-            <th>Member ID</th>
-            <th>Name</th>
-            <th>Aadhar no</th>
-            <th>Joining Date</th>
-            <th>Fees Paid</th>
-            <th>Fees Due</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($members as $member)
-            <tr style="background:#f8fafc; border-radius:6px;">
-                <td>
-                    @if ($member->photo_path)
-                        <img src="{{ url('public/storage/' . $member->photo_path) }}"
-                            class="rounded-circle" width="45" height="45"
-                            style="object-fit:cover;">
-                    @else
-                        <div class="rounded-circle bg-gray-300 d-flex justify-content-center align-items-center"
-                            style="width:45px;height:45px;">
-                            <i class="bi bi-person-circle text-muted" style="font-size:1.2rem;"></i>
-                        </div>
-                    @endif
-                </td>
-                <td>{{ $member->member_id }}</td>
-                <td>{{ $member->first_name }} {{ $member->last_name }}</td>
-                <td>{{ $member->aadhar_no ?? '-' }}</td>
-                <td>{{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</td>
-                <td>{{ $member->fees_paid ?? '0' }}</td>
-                <td>{{ $member->fees_due ?? '0' }}</td>
-                <td>
-                    <span class="badge status-badge {{ $member->status == 'Active' ? 'bg-success' : 'bg-secondary' }}">
-                        {{ $member->status ?? 'Inactive' }}
-                    </span>
-                </td>
-                <td>
-                    <div class="d-flex gap-1 flex-wrap">
-                        <a href="{{ route('gym.members.show', $member->id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
-                        <a href="{{ route('gym.members.edit', $member->id) }}" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i></a>
-                        <form action="{{ route('gym.members.destroy', $member->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="9" class="text-center text-muted py-4">No members found.</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
+                    <table id="membersTable" class="table align-middle table-hover"
+                        style="border-collapse: separate; border-spacing:0 6px;">
+                        <thead style="background: var(--accent-gradient); color:#fff; font-weight:500; font-size:0.9rem;">
+                            <tr>
+                                <th>Photo</th>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Aadhar no</th>
+                                <th>Joining Date</th>
+                                <th>Fees Paid</th>
+                                <th>Fees Due</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($members as $member)
+                                <tr style="background:#f8fafc; border-radius:6px;">
+                                    <td>
+                                        @if ($member->photo_path)
+                                            <img src="{{ url('storage/app/public/' . $member->photo_path) }}"
+                                                class="rounded-circle" width="45" height="45"
+                                                style="object-fit:cover;">
+                                        @else
+                                            <div class="rounded-circle bg-gray-300 d-flex justify-content-center align-items-center"
+                                                style="width:45px;height:45px;">
+                                                <i class="bi bi-person-circle text-muted" style="font-size:1.2rem;"></i>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $member->member_id }}</td>
+                                    <td>{{ $member->first_name }} {{ $member->last_name }}</td>
+                                    <td>{{ $member->aadhar_no ?? '-' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($member->created_at)->format('d M, Y') }}</td>
+                                    <td>{{ $member->fees_paid ?? '0' }}</td>
+                                    <td>{{ $member->fees_due ?? '0' }}</td>
+                                    <td>
+                                        <span
+                                            class="badge status-badge {{ $member->status == 'Active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ $member->status ?? 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <a href="{{ route('gym.members.show', $member->id) }}"
+                                                class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
+                                            <a href="{{ route('gym.members.edit', $member->id) }}"
+                                                class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                                            <form action="{{ route('gym.members.destroy', $member->id) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">No members found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
 
-<script>
-    $(document).ready(function() {
-        $('#membersTable').DataTable({
-            "paging": true,
-            "searching": true,  // ✅ built-in search/filter
-            "ordering": true,
-            "info": true
-        });
-    });
-</script>
+                    <script>
+                        $(document).ready(function() {
+                            $('#membersTable').DataTable({
+                                "paging": true,
+                                "searching": true, // ✅ built-in search/filter
+                                "ordering": true,
+                                "info": true
+                            });
+                        });
+                    </script>
 
                 </div>
             </div>
@@ -341,8 +347,7 @@
                             <i class="bi bi-chevron-down text-muted"></i>
                         </div>
 
-                        <div class="collapse" id="memberCard{{ $member->id }}"
-                            data-bs-parent="#mobileMembersAccordion">
+                        <div class="collapse" id="memberCard{{ $member->id }}" data-bs-parent="#mobileMembersAccordion">
                             <div class="card-body p-2">
                                 <ul class="list-group list-group-flush member-fields">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -428,48 +433,45 @@
     </div>
     </div>
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const badges = document.querySelectorAll('.status-badge');
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const badges = document.querySelectorAll('.status-badge');
 
-            badges.forEach(badge => {
-                badge.addEventListener('click', function() {
-                    const memberId = this.dataset.memberId;
-                    const currentBadge = this;
-                    const currentStatus = this.textContent.trim();
+                badges.forEach(badge => {
+                    badge.addEventListener('click', function() {
+                        const memberId = this.dataset.memberId;
+                        const currentBadge = this;
+                        const currentStatus = this.textContent.trim();
 
-                    if (confirm(`Are you sure you want to change status from ${currentStatus}?`)) {
-                        fetch(`/gym/members/${memberId}/toggle-status`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json',
-                                },
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.status === 'success') {
-                                    currentBadge.textContent = data.new_status;
-                                    currentBadge.classList.toggle('bg-success');
-                                    currentBadge.classList.toggle('bg-secondary');
-                                } else {
-                                    alert(data.message || 'Something went wrong!');
-                                }
-                            })
-                            .catch(() => alert('Something went wrong!'));
-                    }
+                        if (confirm(`Are you sure you want to change status from ${currentStatus}?`)) {
+                            fetch(`/gym/members/${memberId}/toggle-status`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json',
+                                    },
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        currentBadge.textContent = data.new_status;
+                                        currentBadge.classList.toggle('bg-success');
+                                        currentBadge.classList.toggle('bg-secondary');
+                                    } else {
+                                        alert(data.message || 'Something went wrong!');
+                                    }
+                                })
+                                .catch(() => alert('Something went wrong!'));
+                        }
+                    });
                 });
             });
-        });
-    </script>
-@endpush
+        </script>
+    @endpush
 
-@push('scripts')
-   
-@endpush
+    @push('scripts')
+    @endpush
 
 
 @endsection
-
-

@@ -10,6 +10,9 @@ class StaffMemberController extends Controller
 {
     public function index(Request $request)
     {
+         if (!Auth::check()) {
+            return redirect()->route('admin.login')->with('error', 'Please login first.');
+        }
         // Get the authenticated user and their gym_id
         $user = Auth::user();
         $gym_id = $user->gym_id;

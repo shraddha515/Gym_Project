@@ -17,98 +17,104 @@ class LoginController extends Controller
     // Show login page
     public function showLoginForm()
     {
-        return view('admin.login'); 
+        return view('admin.login');
     }
 
 
 
     public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required|min:6',
-    ]);
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|min:6',
+        ]);
 
-    // Clean email input (trim and lowercase)
-    $email = trim(strtolower($request->email));
+        // Clean email input (trim and lowercase)
+        $email = trim(strtolower($request->email));
 
-    // Try to login using Laravel's built-in Auth
-    if (Auth::attempt(['email' => $email, 'password' => $request->password])) {
-        $request->session()->regenerate();
-        $user = Auth::user();
+        // Try to login using Laravel's built-in Auth
+        if (Auth::attempt(['email' => $email, 'password' => $request->password])) {
+            $request->session()->regenerate();
+            $user = Auth::user();
 
-        if ($user->role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
-        } else {
-            return redirect()->route('gym.members.filter');
+            if ($user->role === 'superadmin') {
+                return redirect()->route('superadmin.dashboard');
+            } else {
+                return redirect()->route('gym.members.filter');
+            }
         }
+
+        return back()->withErrors([
+            'email' => 'Invalid credentials. कृपया सही ईमेल और पासवर्ड डालें।',
+        ]);
     }
 
-    return back()->withErrors([
-        'email' => 'Invalid credentials. कृपया सही ईमेल और पासवर्ड डालें।',
-    ]);
-}
 
 
-
-// SUPER ADMIN DASHBOARD
+    // SUPER ADMIN DASHBOARD
     public function superAdminDashboard()
     {
         $gyms = DB::table('gym_companies')->orderBy('gym_id', 'desc')->get();
+
+        $gyms = DB::table('gym_companies')
+            ->join('users', 'gym_companies.gym_id', '=', 'users.gym_id')
+            ->select('gym_companies.*', 'users.status')
+            ->orderBy('gym_companies.gym_id', 'desc')
+            ->get();
         return view('admin.superadmin_dashboard', compact('gyms'));
     }
 
     // ADD NEW COMPANY & GYM ADMIN USER
-public function addCompany(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'company_name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email|unique:gym_companies,email',
-        'password' => 'required|min:6',
-        'phone' => 'nullable|string|max:20',
-        'address' => 'nullable|string|max:255',
+    public function addCompany(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'company_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email|unique:gym_companies,email',
+            'password' => 'required|min:6',
+            'phone' => 'required|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'status' => 'required|in:Active,Inactive',
+
+
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+       DB::beginTransaction();
+
+try {
+    // 1️⃣ Pehle company insert karo (gym_companies)
+    $gymId = DB::table('gym_companies')->insertGetId([
+        'company_name' => $request->company_name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'address' => $request->address,
+        'phone' => $request->phone,
+        'created_at' => Carbon::now(),
     ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
-    }
+    // 2️⃣ Ab users table me insert karo gym_id ke sath
+    DB::table('users')->insert([
+        'gym_id' => $gymId, // yaha link kar diya
+        'name' => $request->company_name . ' Admin',
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'owner',
+        'mobile' => $request->phone,
+        'status' => $request->status,
+        'created_at' => Carbon::now(),
+    ]);
 
-    DB::beginTransaction();
+    DB::commit();
 
-    try {
-        // 1️⃣ Insert into users table
-        $userId = DB::table('users')->insertGetId([
-            'name' => $request->company_name . ' Admin',
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'owner',
-            'mobile' => $request->phone,
-            'created_at' => Carbon::now(),
-        ]);
-
-        // Save user ID in session
-        Session::put('gym_user_id', $userId);
-
-        // 2️⃣ Insert into gym_companies table with gym_id = userId
-        DB::table('gym_companies')->insert([
-            'gym_id' => $userId,
-            'company_name' => $request->company_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'address' => $request->address,
-            'phone' => $request->phone,
-            'created_at' => Carbon::now(),
-        ]);
-
-        DB::commit();
-
-        return redirect()->back()->with('success', 'Gym company and user created successfully!');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        dd('Error adding gym/company: ' . $e->getMessage());
-    }
+    return redirect()->back()->with('success', 'Gym company and user created successfully!');
+} catch (\Exception $e) {
+    DB::rollBack();
+    dd('Error adding gym/company: ' . $e->getMessage());
 }
+    }
 
 
     // UPDATE EXISTING COMPANY & GYM ADMIN USER
@@ -117,8 +123,13 @@ public function addCompany(Request $request)
         $validator = Validator::make($request->all(), [
             'company_name' => 'required|string|max:255',
             'email' => 'required|email|unique:gym_companies,email,' . $id . ',gym_id|unique:users,email,' . $id . ',gym_id',
-            'phone' => 'nullable|string|max:20',
+
+
+            'phone' => 'required|string|max:20',
             'address' => 'nullable|string|max:255',
+            'status' => 'required|in:Active,Inactive',
+
+
         ]);
 
         if ($validator->fails()) {
@@ -141,12 +152,15 @@ public function addCompany(Request $request)
                 'name' => $request->company_name . ' Admin',
                 'email' => $request->email,
                 'updated_at' => Carbon::now(),
+                  'status'     => $request->status, 
+
+
             ]);
-            
+
             DB::commit();
 
             return redirect()->route('superadmin.dashboard')
-                             ->with('success', 'Gym Company updated successfully!');
+                ->with('success', 'Gym Company updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to update company. Please try again.');
@@ -163,11 +177,11 @@ public function addCompany(Request $request)
 
             // 2. Delete company record
             DB::table('gym_companies')->where('gym_id', $id)->delete();
-            
+
             DB::commit();
 
             return redirect()->route('superadmin.dashboard')
-                             ->with('success', 'Gym Company deleted successfully!');
+                ->with('success', 'Gym Company deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to delete company. Please try again.');
@@ -180,7 +194,7 @@ public function addCompany(Request $request)
     public function gymDashboard()
     {
         $user = Auth::user();
-        
+
         // You can use the authenticated user's gym_id to fetch related data
         $gymId = $user->gym_id;
         return view('admin.gym_dashboard', compact('user'));
@@ -195,7 +209,7 @@ public function addCompany(Request $request)
 
 
 
-     public function logout(Request $request)
+    public function logout(Request $request)
     {
         Auth::logout();
 

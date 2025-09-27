@@ -225,7 +225,8 @@
                                     <td>{{ $item->id }}</td>
                                     <td>{{ $item->full_name ?? $item->first_name . ' ' . $item->last_name }}</td>
                                     <td>{{ $item->mobile_number }}</td>
-                                    <td>{{ $item->membership_type }}</td>
+                                    <td>{{ $item->membership_name ?? $item->membership_type }}</td>
+
                                     <td>{{ $item->membership_valid_from }}</td>
                                     <td>{{ $item->membership_valid_to }}</td>
                                     <td class="text-success">₹{{ number_format($item->amount ?? 0, 2) }}</td>
