@@ -7,9 +7,9 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StaffMemberController;
-
+use App\Http\Controllers\MemberHistoryController;
 // Login
-Route::get('admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
 Route::post('admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
@@ -25,6 +25,11 @@ Route::delete('superadmin/delete/{id}', [AdminController::class, 'deleteSuperAdm
 // Members Filter + Renew
 Route::get('gym/members/filter', [AdminController::class, 'filterMembers'])->name('gym.members.filter');
 Route::post('members/{id}/renew', [AdminController::class, 'renewSubmit'])->name('members.renew');
+// All History Page
+Route::get('gym/members/history', [MemberHistoryController::class, 'index'])->name('gym.members.history');
+
+// Fetch single member history (for renew modal via ajax)
+Route::get('/members/{id}/history', [MemberHistoryController::class, 'memberHistory'])->name('members.memberHistory');
 
 // Members Management
 Route::get('members', [MemberController::class, 'index'])->name('gym.members.index');
