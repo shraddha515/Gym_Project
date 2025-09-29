@@ -450,29 +450,42 @@ class AdminController extends Controller
     }
 
     // Update current user's profile
-    public function updateGymSettings(Request $request)
-    {
-        $user = Auth::user();
+public function updateGymSettings(Request $request)
+{
+    // Logged-in user ID fetch
+    $userId = Auth::id();
+ // यह user ID दिखा देगा और script रोक देगा
+    // Validate input
+  
 
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile' => 'required|digits:10',
-            'password' => 'nullable|string|min:6|confirmed',
-        ]);
+    // Fetch the user row from DB
+    $userRow = DB::table('users')->where('id', $userId)->first();
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->mobile = $request->mobile;
+    // Print the row
+  // Laravel dump & die, यह row दिखा देगा और script रोक देगा
 
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-        }
-
-        $user->save();
-
-        return redirect()->route('gym.settings')->with('success', 'Profile updated successfully!');
+    if (!$userRow) {
+        return redirect()->back()->with('error', 'User not found.');
     }
+
+    // Prepare update data
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'mobile' => $request->mobile,
+        'updated_at' => now(),
+    ];
+
+    if ($request->password) {
+        $data['password'] = Hash::make($request->password);
+    }
+
+    // Update the same row
+    DB::table('users')->where('id', $userId)->update($data);
+
+    return redirect()->route('gym.settings')->with('success', 'Profile updated successfully!');
+}
+
 
     // Add new super admin
     public function addSuperAdmin(Request $request)
@@ -508,4 +521,37 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Super Admin deleted successfully!');
     }
+    // AdminController.php
+
+// public function updateSuperAdmin(Request $request, $id)
+// {
+//     $request->validate([
+//         'name'   => 'required|string|max:100',
+//         'email'  => 'required|email|unique:users,email,' . $id,
+//         'mobile' => 'nullable|string|max:15',
+//         'status' => 'required|in:0,1', // 0 = inactive, 1 = active
+//     ]);
+
+//     $superadmin = DB::table('users')
+//         ->where('id', $id)
+//         ->where('role', 'superadmin')
+//         ->first();
+
+//     if (!$superadmin) {
+//         return redirect()->back()->with('error', 'Super Admin not found.');
+//     }
+
+//     DB::table('users')
+//         ->where('id', $id)
+//         ->update([
+//             'name'       => $request->name,
+//             'email'      => $request->email,
+//             'mobile'     => $request->mobile,
+//             'status'     => $request->status,
+//             'updated_at' => now(),
+//         ]);
+
+//     return redirect()->back()->with('success', 'Super Admin updated successfully!');
+// }
+
 }

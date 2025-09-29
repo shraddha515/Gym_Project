@@ -268,17 +268,16 @@ public function update(Request $request, $id)
 
 
 
-    /**
-     * Export members data to a CSV file.
-     */
-    public function exportCsv()
+public function exportCsv()
 {
-    
-    $members = DB::table('members')->get();
+    $user = Auth::user();
+    $gym_id = $user->gym_id;
+
+    // Fetch members for the logged-in gym
+    $members = DB::table('members')->where('gym_id', $gym_id)->get();
 
     $filename = "members_" . date('Ymd_His') . ".csv";
 
-    // Set headers
     $headers = [
         "Content-type"        => "text/csv; charset=UTF-8",
         "Content-Disposition" => "attachment; filename=$filename",
@@ -287,26 +286,46 @@ public function update(Request $request, $id)
         "Expires"             => "0"
     ];
 
-    $columns = ['Member ID', 'Name', 'Mobile', 'City', 'Status', 'Joining Date'];
+    // Define the CSV columns
+    $columns = [
+        'Member ID', 'First Name', 'Last Name', 'Gender', 'Date of Birth', 
+        'Mobile', 'Address', 'Aadhar No', 'Photo Path', 'Interested Area',
+        'Membership Type', 'Membership Valid From', 'Membership Valid To',
+        'Weight', 'Height', 'Fat Percentage', 'Fees Due', 'Fees Paid',
+        'Status', 'Joining Date'
+    ];
 
     $callback = function() use ($members, $columns) {
         $file = fopen('php://output', 'w');
 
-        // Add BOM for UTF-8 support (prevents Excel issues)
+        // Add BOM for UTF-8 support (Excel friendly)
         fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-        // Write header
+        // Write CSV header
         fputcsv($file, $columns);
 
-        // Write rows
         foreach ($members as $member) {
             fputcsv($file, [
-                $member->member_id,
-                $member->first_name . ' ' . $member->last_name,
-                $member->mobile_number,
-                // $member->city,
-                $member->member_type,
-                \Carbon\Carbon::parse($member->created_at)->format('M d, Y')
+                $member->member_id ?? 'NA',
+                $member->first_name ?? 'NA',
+                $member->last_name ?? 'NA',
+                $member->gender ?? 'NA',
+                $member->date_of_birth ? \Carbon\Carbon::parse($member->date_of_birth)->format('M d, Y') : 'NA',
+                $member->mobile_number ?? 'NA',
+                $member->address ?? 'NA',
+                $member->aadhar_no ?? 'NA',
+                $member->photo_path ?? 'NA',
+                $member->interested_area ?? 'NA',
+                $member->membership_type ?? 'NA',
+                $member->membership_valid_from ? \Carbon\Carbon::parse($member->membership_valid_from)->format('M d, Y') : 'NA',
+                $member->membership_valid_to ? \Carbon\Carbon::parse($member->membership_valid_to)->format('M d, Y') : 'NA',
+                $member->weight ?? 'NA',
+                $member->height ?? 'NA',
+                $member->fat_percentage ?? 'NA',
+                $member->fees_due ?? 'NA',
+                $member->fees_paid ?? 'NA',
+                $member->status ?? 'NA',
+                $member->created_at ? \Carbon\Carbon::parse($member->created_at)->format('M d, Y') : 'NA',
             ]);
         }
 
@@ -315,6 +334,7 @@ public function update(Request $request, $id)
 
     return response()->stream($callback, 200, $headers);
 }
+
 
 
 

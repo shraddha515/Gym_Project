@@ -16,11 +16,21 @@ Route::post('admin/logout', [LoginController::class, 'logout'])->name('admin.log
 // Superadmin
 Route::get('superadmin/dashboard', [LoginController::class, 'superAdminDashboard'])->name('superadmin.dashboard');
 Route::post('superadmin/add-company', [LoginController::class, 'addCompany'])->name('superadmin.addCompany');
-Route::put('superadmin/update-company/{id}', [LoginController::class, 'updateCompany'])->name('superadmin.updateCompany');
+Route::put('/superadmin/update-company/{id}', [LoginController::class, 'updateCompany'])->name('superadmin.updateCompany');
 Route::delete('superadmin/delete-company/{id}', [LoginController::class, 'deleteCompany'])->name('superadmin.deleteCompany');
 
 Route::post('settings/add-superadmin', [AdminController::class, 'addSuperAdmin'])->name('superadmin.add')->middleware('auth');
 Route::delete('superadmin/delete/{id}', [AdminController::class, 'deleteSuperAdmin'])->name('superadmin.deleteUser');
+// routes/web.php
+// Route::put('superadmin/update/{id}', [AdminController::class, 'updateSuperAdmin'])
+//     ->name('superadmin.update')
+//     ->middleware('auth');
+
+
+    
+// Gym Settings
+Route::get('settings', [AdminController::class, 'gymSettings'])->name('gym.settings');
+Route::post('settings', [AdminController::class, 'updateGymSettings'])->name('gym.settings.update');
 
 // Members Filter + Renew
 Route::get('gym/members/filter', [AdminController::class, 'filterMembers'])->name('gym.members.filter');
@@ -62,9 +72,6 @@ Route::post('membership/installment/delete/{id}', [AdminController::class, 'dele
 // Edit Membership Page
 Route::get('membership/edit/{id}', [AdminController::class, 'editMembershipPage'])->name('membership.edit');
 
-// Gym Settings
-Route::get('settings', [AdminController::class, 'gymSettings'])->name('gym.settings');
-Route::post('settings', [AdminController::class, 'updateGymSettings'])->name('gym.settings.update');
 
 // Expenses
 Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');

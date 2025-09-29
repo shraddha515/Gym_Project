@@ -44,6 +44,8 @@
 
         .form-label {
             color: black;
+            font-size: 1rem;
+            font-weight: 500;
         }
     </style>
     @php
@@ -156,17 +158,12 @@
                                 <input type="email" name="email" class="form-control"
                                     value="{{ old('email', $user->email) }}" required>
                             </div>
-                            @if ($user && $role === 'owner')
-                                <div class="mb-3">
-                                    <label class="form-label">Mobile</label>
-                                    <input type="text" name="mobile" class="form-control"
-                                        value="{{ old('mobile', $user->mobile) }}" maxlength="10" pattern="[0-9]{10}"
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-
-                                </div>
-                            @endif
-
-
+                            <div class="mb-3">
+                                <label class="form-label">Mobile</label>
+                                <input type="text" name="mobile" class="form-control"
+                                    value="{{ old('mobile', $user->mobile) }}" maxlength="10" pattern="[0-9]{10}"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                            </div>
                             <div class="mb-3">
                                 <label class="form-label">New Password</label>
                                 <input type="password" name="password" class="form-control">
@@ -175,10 +172,10 @@
                                 <label class="form-label">Confirm Password</label>
                                 <input type="password" name="password_confirmation" class="form-control">
                             </div>
-                            <button type="submit" class="btn  text-white w-50"
-                                style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">Update
-                                Profile</button>
+                            <button type="submit" class="btn text-white w-50"
+                                style="background: linear-gradient(45deg,#3b82f6 0%,#a855f7 100%)">Update Profile</button>
                         </form>
+
                     </div>
                 </div>
 

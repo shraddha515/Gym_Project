@@ -794,17 +794,17 @@
     });
 
     // preview image
-    document.getElementById('image').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            const preview = document.getElementById('previewImage');
-            preview.src = ev.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    });
+    // document.getElementById('image').addEventListener('change', function(e) {
+    //     const file = e.target.files[0];
+    //     if (!file) return;
+    //     const reader = new FileReader();
+    //     reader.onload = function(ev) {
+    //         const preview = document.getElementById('previewImage');
+    //         preview.src = ev.target.result;
+    //         preview.style.display = 'block';
+    //     };
+    //     reader.readAsDataURL(file);
+    // });
 
     // Add category (AJAX)
     document.getElementById('addCategoryBtn').addEventListener('click', function() {

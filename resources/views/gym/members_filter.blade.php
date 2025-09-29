@@ -548,7 +548,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Confirm Renew</button>
                     
-    <button type="button" id="viewHistoryBtn" class="btn btn-info text-white">View History</button>
+    {{-- <button type="button" id="viewHistoryBtn" class="btn btn-info text-white">View History</button> --}}
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
     
@@ -556,7 +556,7 @@
 </div>
 
 {{-- History Section --}}
-<div id="memberHistorySection" class="mt-3" style="display: none;">
+{{-- <div id="memberHistorySection" class="mt-3" style="display: none;">
     <h6 class="text-black">Previous Renewals</h6>
     <div class="table-responsive">
         <table class="table table-sm table-striped">
@@ -572,7 +572,7 @@
             <tbody id="memberHistoryBody"></tbody>
         </table>
     </div>
-</div>
+</div> --}}
 
 <script>
 $('#viewHistoryBtn').on('click', function(){

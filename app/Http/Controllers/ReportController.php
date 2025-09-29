@@ -111,58 +111,90 @@ class ReportController extends Controller
         return $pdf->download('gym_report.pdf');
     }
 
-    // CSV Download
-    public function downloadCsv(Request $request)
-    {
-         if (!Auth::check()) {
-            return redirect()->route('admin.login')->with('error', 'Please login first.');
-        }
-        $user = Auth::user();
-        $gym_id = $user->gym_id;
-
-        $type = $request->type ?? 'members';
-        $from = $request->from ?? date('Y-m-01');
-        $to   = $request->to ?? date('Y-m-d');
-        $member_id = $request->member_id ?? null;
-
-        $filename = "gym_report_".date('YmdHis').".csv";
-        $handle = fopen('php://temp', 'w+');
-
-        if($type=='members'){
-            fputcsv($handle, ['ID','Name','Mobile','Membership','Valid From','Valid To','Amount']);
-            $members = DB::table('members as m')
-                ->leftJoin('memberships as ms', 'm.membership_type', '=', 'ms.name')
-                ->select('m.id',
-                         DB::raw("CONCAT(m.first_name,' ',IFNULL(m.last_name,'')) as name"),
-                         'm.mobile_number', 'ms.name as membership_name',
-                         'm.membership_valid_from','m.membership_valid_to',
-                         'm.fees_paid as amount')
-                ->where('m.gym_id', $gym_id)
-                ->whereBetween('m.membership_valid_from', [$from,$to])
-                ->when($member_id, fn($q) => $q->where('m.id', $member_id))
-                ->get();
-
-            foreach($members as $m){
-                fputcsv($handle, [$m->id,$m->name,$m->mobile_number,$m->membership_type,$m->membership_valid_from,$m->membership_valid_to,$m->amount]);
-            }
-        } else {
-            fputcsv($handle, ['ID','Category','Amount','Description','Date']);
-            $expenses = DB::table('expenses')
-                ->where('gym_id', $gym_id)
-                ->whereBetween('expense_date', [$from,$to])
-                ->when($member_id, fn($q) => $q->where('created_by', $member_id))
-                ->get();
-            foreach($expenses as $e){
-                fputcsv($handle, [$e->id,$e->category,$e->amount,$e->description,$e->expense_date]);
-            }
-        }
-
-        rewind($handle);
-        $csvContent = stream_get_contents($handle);
-        fclose($handle);
-
-        return response($csvContent)
-            ->header('Content-Type','text/csv')
-            ->header('Content-Disposition','attachment; filename="'.$filename.'"');
+   // CSV Download
+public function downloadCsv(Request $request)
+{
+    // Ensure user is logged in
+    if (!Auth::check()) {
+        return redirect()->route('admin.login')->with('error', 'Please login first.');
     }
+
+    $user = Auth::user();
+    $gym_id = $user->gym_id;
+
+    $type = $request->type ?? 'members';
+    $from = $request->from ?? date('Y-m-01');
+    $to   = $request->to ?? date('Y-m-d');
+    $member_id = $request->member_id ?? null;
+
+    // CSV filename
+    $filename = "gym_report_" . date('YmdHis') . ".csv";
+
+    // Open temporary file handle
+    $handle = fopen('php://temp', 'w+');
+fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+    if ($type == 'members') {
+        // CSV header
+        fputcsv($handle, ['ID','Name','Mobile','Membership Type','Valid From','Valid To','Amount']);
+
+        // Fetch members for the logged-in gym
+        $members = DB::table('members as m')
+            ->leftJoin('memberships as ms', 'm.membership_type', '=', 'ms.id') // join on ID
+            ->select(
+                'm.id',
+                DB::raw("CONCAT(m.first_name,' ',IFNULL(m.last_name,'')) as name"),
+                'm.mobile_number',
+                'ms.name as membership_name',
+                'm.membership_valid_from',
+                'm.membership_valid_to',
+                'm.fees_paid as amount'
+            )
+            ->where('m.gym_id', $gym_id)
+            ->whereBetween('m.membership_valid_from', [$from, $to])
+            ->when($member_id, fn($q) => $q->where('m.id', $member_id))
+            ->get();
+
+        // Write rows
+        foreach ($members as $m) {
+            fputcsv($handle, [
+                $m->id ?? 'NA',
+                $m->name ?? 'NA',
+                $m->mobile_number ?? 'NA',
+                $m->membership_name ?? 'NA',
+                $m->membership_valid_from ? \Carbon\Carbon::parse($m->membership_valid_from)->format('M d, Y') : 'NA',
+                $m->membership_valid_to ? \Carbon\Carbon::parse($m->membership_valid_to)->format('M d, Y') : 'NA',
+                $m->amount ?? 0
+            ]);
+        }
+
+    } else { // Expenses
+        // CSV header
+        fputcsv($handle, ['ID','Category','Amount','Description','Date']);
+
+        $expenses = DB::table('expenses')
+            ->where('gym_id', $gym_id)
+            ->whereBetween('expense_date', [$from, $to])
+            ->when($member_id, fn($q) => $q->where('created_by', $member_id))
+            ->get();
+
+        foreach ($expenses as $e) {
+            fputcsv($handle, [
+                $e->id ?? 'NA',
+                $e->category ?? 'NA',
+                $e->amount ?? 0,
+                $e->description ?? 'NA',
+                $e->expense_date ? \Carbon\Carbon::parse($e->expense_date)->format('M d, Y') : 'NA'
+            ]);
+        }
+    }
+
+    // Prepare CSV for download
+    rewind($handle);
+    $csvContent = stream_get_contents($handle);
+    fclose($handle);
+
+    return response($csvContent)
+        ->header('Content-Type', 'text/csv')
+        ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+}
 }
