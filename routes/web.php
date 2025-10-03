@@ -79,7 +79,7 @@ Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.inde
 Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
 Route::get('expenses/{id}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
 Route::put('expenses/{id}/update', [ExpenseController::class, 'update'])->name('expenses.update');
-Route::post('expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+Route::delete('expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 Route::get('expenses/expensesreport', [ExpenseController::class, 'expensesreport'])->name('expenses.expensesreport');
 Route::get('expenses/export/csv', [ExpenseController::class, 'exportCsv'])->name('expenses.export.csv');
 
