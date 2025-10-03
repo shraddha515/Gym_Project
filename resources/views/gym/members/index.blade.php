@@ -168,7 +168,7 @@
             font-size: 0.75rem;
             padding: 4px 4px !important;
             border-radius: 4px;
-            background: linear-gradient(45deg, #3b82f6, #a855f7);
+            background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);
             color: #fff;
             border: none;
             flex: 1;
@@ -191,14 +191,7 @@
 @section('content')
     <div class="container-fluid py-4">
 
-        {{-- Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="dashboard-heading"></h2>
-            <a href="{{ route('gym.members.create') }}" class="btn   shadow-sm"
-                style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
-                <i class="bi bi-plus-circle me-2"></i> Add
-            </a>
-        </div>
+
 
         {{-- Alerts --}}
         @if (session('success'))
@@ -217,8 +210,15 @@
         <div class="card shadow-sm p-3" style="background: var(--card-bg); border-radius:8px;">
 
             {{-- Search + Export --}}
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
-
+           <div class="d-flex justify-content-end mb-3 gap-2">
+                    {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="dashboard-heading"></h2>
+            <a href="{{ route('gym.members.create') }}" class="btn   shadow-sm"
+                style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%); color:#fff; ">
+                <i class="bi bi-plus-circle me-2"></i> Add
+            </a>
+        </div>
                 <div class="dropdown">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         style="font-size:0.85rem; padding:0.45rem 0.75rem;">
@@ -334,7 +334,7 @@
                             style="cursor:pointer;">
                             <div class="d-flex align-items-center gap-2">
                                 @if ($member->photo_path)
-                                    <img src="{{ url('public/storage/' . $member->photo_path) }}" class="rounded-circle"
+                                    <img src="{{ url('storage/app/public/' . $member->photo_path) }}" class="rounded-circle"
                                         width="40" height="40" style="object-fit:cover;">
                                 @else
                                     <div class="rounded-circle bg-light d-flex justify-content-center align-items-center"

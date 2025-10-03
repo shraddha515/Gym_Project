@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,7 @@ class ExpenseController extends Controller
     // List + create form on same page
     public function index(Request $request)
     {
-         if (!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('admin.login')->with('error', 'Please login first.');
         }
         $user = Auth::user();
@@ -50,14 +51,37 @@ class ExpenseController extends Controller
         $countResult = DB::select($countSql, $bindings);
         $total = $countResult[0]->total ?? 0;
 
-        
+
         $sql = "SELECT * FROM expenses {$where} ORDER BY expense_date DESC, id DESC LIMIT ? OFFSET ?";
         $bindingsWithLimit = array_merge($bindings, [$perPage, $offset]);
         $expenses = DB::select($sql, $bindingsWithLimit);
 
         // simple pager data
         $lastPage = (int) ceil($total / $perPage);
+        $expensesQuery = DB::table('expenses')->where('gym_id', $gym_id);
 
+        if ($q) {
+            $expensesQuery->where(function ($query) use ($q) {
+                $query->where('category', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        if ($from) {
+            $expensesQuery->whereDate('expense_date', '>=', $from);
+        }
+
+        if ($to) {
+            $expensesQuery->whereDate('expense_date', '<=', $to);
+        }
+
+        $expenses = $expensesQuery->orderBy('expense_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(15);
+
+
+        // Categories fetch
+        $categories = ExpenseCategory::where('gym_id', $gym_id)->orderBy('name')->get();
         return view('expenses.index', [
             'expenses' => $expenses,
             'total' => $total,
@@ -66,6 +90,7 @@ class ExpenseController extends Controller
             'q' => $q,
             'from' => $from,
             'to' => $to,
+            'categories' => $categories,
         ]);
     }
 
@@ -76,11 +101,13 @@ class ExpenseController extends Controller
 
         // Add more specific validation rules
         $v = Validator::make($request->all(), [
-            'category' => 'required|string|max:500', 
+            'category' => 'required|string|max:500',
             'amount' => 'required|numeric|min:0.01|decimal:0,2', // Enforce at least 0.01 and max 2 decimal places
             'description' => 'nullable|string|max:500', // A more generous max length for descriptions
-            'expense_date' => 'required|date|before_or_equal:' . date('Y-m-d'),// Ensure the date is not in the future
+            'expense_date' => 'required|date|before_or_equal:' . date('Y-m-d'), // Ensure the date is not in the future
             'payment_method' => 'nullable|string|max:50|alpha', // 'alpha' ensures only letters
+            'invoice_number' => 'nullable|string|max:100',
+            'document' => 'nullable|file|mimes:pdf|max:2048', // max 2MB
         ]);
 
         if ($v->fails()) {
@@ -94,10 +121,18 @@ class ExpenseController extends Controller
         $payment_method = $request->input('payment_method');
         $created_by = Auth::id() ?? null;
 
+        $documentPath = null;
+        if ($request->hasFile('document')) {
+            $documentPath = $request->file('document')->store('expenses_docs', 'public');
+        }
+
         // Using DB::insert with bindings (safe)
-        DB::insert("INSERT INTO expenses (gym_id, category, amount, description, expense_date, payment_method, created_by, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
-                    [$gym_id, $category, $amount, $description, $expense_date, $payment_method, $created_by]);
+        DB::insert(
+            "INSERT INTO expenses (gym_id, category, amount, description, expense_date, payment_method, invoice_number, document, created_by, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+            [$gym_id, $category, $amount, $description, $expense_date, $payment_method, $request->input('invoice_number'), $documentPath, $created_by]
+        );
+
 
         return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
     }
@@ -117,7 +152,7 @@ class ExpenseController extends Controller
     }
 
 
-    
+
 
     public function update(Request $request, $id)
     {
@@ -131,21 +166,32 @@ class ExpenseController extends Controller
             'description' => 'nullable|string|max:500',
             'expense_date' => 'required|date|before_or_equal:today',
             'payment_method' => 'nullable|string|max:50|alpha',
+            'invoice_number' => 'nullable|string|max:100',
+            'document' => 'nullable|file|mimes:pdf|max:2048',
+
         ]);
+        $documentPath = $request->input('existing_document'); // agar edit page se pass ho raha ho
+        if ($request->hasFile('document')) {
+            $documentPath = $request->file('document')->store('expenses_docs', 'public');
+        }
 
         if ($v->fails()) {
             return redirect()->back()->withErrors($v)->withInput();
         }
-        $updated = DB::update("UPDATE expenses SET category = ?, amount = ?, description = ?, expense_date = ?, payment_method = ?, updated_at = NOW() WHERE id = ? AND gym_id = ?",
+        $updated = DB::update(
+            "UPDATE expenses SET category = ?, amount = ?, description = ?, expense_date = ?, payment_method = ?, invoice_number = ?, document = ?, updated_at = NOW() WHERE id = ? AND gym_id = ?",
             [
                 $request->input('category'),
                 $request->input('amount'),
                 $request->input('description'),
                 $request->input('expense_date'),
                 $request->input('payment_method'),
+                $request->input('invoice_number'),
+                $documentPath,
                 $id,
                 $gym_id
-            ]);
+            ]
+        );
 
         return redirect()->route('expenses.index')->with('success', 'Expense updated.');
     }
@@ -154,7 +200,7 @@ class ExpenseController extends Controller
     {
         $user = Auth::user();
         $gym_id = $user->gym_id;
-        
+
         // simple deletion
         DB::delete("DELETE FROM expenses WHERE id = ? AND gym_id = ?", [$id, $gym_id]);
         return redirect()->route('expenses.index')->with('success', 'Expense deleted.');
@@ -172,8 +218,14 @@ class ExpenseController extends Controller
 
         $bindings = [$gym_id];
         $where = "WHERE gym_id = ?";
-        if ($from) { $where .= " AND expense_date >= ?"; $bindings[] = $from; }
-        if ($to) { $where .= " AND expense_date <= ?"; $bindings[] = $to; }
+        if ($from) {
+            $where .= " AND expense_date >= ?";
+            $bindings[] = $from;
+        }
+        if ($to) {
+            $where .= " AND expense_date <= ?";
+            $bindings[] = $to;
+        }
 
         $sql = "SELECT category, SUM(amount) as total_amount, COUNT(*) as count
                 FROM expenses
@@ -196,16 +248,22 @@ class ExpenseController extends Controller
 
         $bindings = [$gym_id];
         $where = "WHERE gym_id = ?";
-        if ($from) { $where .= " AND expense_date >= ?"; $bindings[] = $from; }
-        if ($to) { $where .= " AND expense_date <= ?"; $bindings[] = $to; }
+        if ($from) {
+            $where .= " AND expense_date >= ?";
+            $bindings[] = $from;
+        }
+        if ($to) {
+            $where .= " AND expense_date <= ?";
+            $bindings[] = $to;
+        }
 
         $sql = "SELECT id, category, amount, description, expense_date, payment_method, created_at FROM expenses {$where} ORDER BY expense_date DESC";
         $rows = DB::select($sql, $bindings);
 
-        $response = new StreamedResponse(function() use ($rows) {
+        $response = new StreamedResponse(function () use ($rows) {
             $handle = fopen('php://output', 'w');
             // header row
-            fputcsv($handle, ['ID','Category','Amount','Description','Expense Date','Payment Method','Created At']);
+            fputcsv($handle, ['ID', 'Category', 'Amount', 'Description', 'Expense Date', 'Payment Method', 'Created At']);
             foreach ($rows as $r) {
                 fputcsv($handle, [
                     $r->id,
@@ -222,7 +280,7 @@ class ExpenseController extends Controller
 
         $filename = 'expenses_export_' . date('Ymd_His') . '.csv';
         $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
-        $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         return $response;
     }

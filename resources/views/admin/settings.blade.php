@@ -61,12 +61,12 @@
                 @if ($user->role === 'superadmin')
                     <div class="card mb-4 shadow-sm border-0">
                         <div class="card-header  text-white"
-                            style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
+                            style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">
                             <h5 class="mb-0">Manage Super Admins</h5>
                         </div>
                         <div class="card-body">
                             <button class="btn  text-white mb-3" data-bs-toggle="modal" data-bs-target="#addSuperAdminModal"
-                                style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">Add New Super
+                                style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">Add New Super
                                 Admin</button>
 
                             {{-- Existing Super Admins List --}}
@@ -100,7 +100,7 @@
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header text-white"
-                                    style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
+                                    style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">
                                     <h5 class="modal-title">Add New Super Admin</h5>
                                     <button type="button" class="btn-close btn-close-white"
                                         data-bs-dismiss="modal"></button>
@@ -127,7 +127,7 @@
                                         </div>
                                         <input type="hidden" name="role" value="superadmin">
                                         <button type="submit" class="btn  w-100"
-                                            style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">Add Super
+                                            style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);">Add Super
                                             Admin</button>
                                     </form>
                                 </div>
@@ -139,7 +139,7 @@
                 {{-- Current User Profile Form --}}
                 <div class="card shadow-sm border-0 rounded-3">
                     <div class="card-header  text-white text-center py-3 rounded-top-3"
-                        style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
+                        style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">
                         <h4 class="mb-0">Profile Settings</h4>
                     </div>
                     <div class="card-body p-4">
@@ -173,7 +173,7 @@
                                 <input type="password" name="password_confirmation" class="form-control">
                             </div>
                             <button type="submit" class="btn text-white w-50"
-                                style="background: linear-gradient(45deg,#3b82f6 0%,#a855f7 100%)">Update Profile</button>
+                                style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);">Update Profile</button>
                         </form>
 
                     </div>

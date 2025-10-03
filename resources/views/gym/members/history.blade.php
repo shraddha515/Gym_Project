@@ -1,7 +1,7 @@
 @extends('admin.layout')
 
 @section('content')
-<div class="container py-4" style="margin-top: 72px;">
+<div class="container py-4" style="margin-top: 72px; min-width:80vw;">
     <h3 class="mb-4 text-center">All Members History</h3>
 
     {{-- Table --}}
@@ -55,15 +55,15 @@
 
     var buttonsConfig = isMobile
         ? [
-            { extend: 'pdf', className: 'btn btn-sm btn-warning me-1' },
-            { extend: 'print', className: 'btn btn-sm btn-dark' }
+            { extend: 'pdf', className: 'btn btn-sm  btn-primary me-1' },
+            { extend: 'print', className: 'btn btn-sm btn-primary' }
           ]
         : [
-            { extend: 'copy', className: 'btn btn-sm btn-primary me-1' },
-            { extend: 'csv', className: 'btn btn-sm btn-success me-1' },
-            { extend: 'excel', className: 'btn btn-sm btn-info me-1' },
-            { extend: 'pdf', className: 'btn btn-sm btn-warning me-1' },
-            { extend: 'print', className: 'btn btn-sm btn-dark' }
+            // { extend: 'copy', className: 'btn btn-sm btn-primary me-1' },
+            { extend: 'csv', className: 'btn btn-sm  btn-primary me-1' },
+            // { extend: 'excel', className: 'btn btn-sm btn-info me-1' },
+            { extend: 'pdf', className: 'btn btn-sm  btn-primary me-1' },
+            { extend: 'print', className: 'btn btn-sm btn-primary' }
           ];
 
     $('#historyTable').DataTable({

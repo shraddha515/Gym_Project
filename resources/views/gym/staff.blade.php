@@ -135,7 +135,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
             <h2 class="dashboard-heading">Staff Members</h2>
             <button class="btn shadow-sm" data-bs-toggle="modal" data-bs-target="#staffModal"
-                style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%); color:white;">
+                style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%); color:white;">
                 <i class="bi bi-person-plus-fill"></i> Add New Staff
             </button>
         </div>
@@ -148,7 +148,7 @@
         <div class="modal fade" id="staffModal" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content rounded-3 border-0 shadow">
-                    <div class="modal-header" style="background: linear-gradient(45deg, #3b82f6, #a855f7);">
+                    <div class="modal-header" style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);">
                         <h5 class="modal-title text-white">
                             {{ isset($editStaff) ? 'Edit Staff' : 'Add New Staff' }}
                         </h5>
@@ -221,9 +221,9 @@
 
                         <div class="modal-footer d-flex justify-content-end">
                             <button type="button" class="btn  btn-sm" data-bs-dismiss="modal"
-                                style="background:linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">Cancel</button>
+                                style="background:linear-gradient(45deg, #023661 0%, #015f70 100%);">Cancel</button>
                             <button type="submit" class="btn  btn-sm px-3"
-                                style="background:linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
+                                style="background:linear-gradient(45deg, #023661 0%, #015f70 100%);">
                                 {{ isset($editStaff) ? 'Update Staff' : 'Add Staff' }}
                             </button>
                         </div>

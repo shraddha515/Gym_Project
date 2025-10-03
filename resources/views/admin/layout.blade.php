@@ -18,10 +18,10 @@
 
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #082841 0%, #06233ad0 100%);
-            --sidebar-gradient: linear-gradient(180deg, #0f2027 0%, #042a37 100%);
+            /* --bg-gradient: linear-gradient(135deg, #082841 0%, #06233ad0 100%); */
+            --sidebar-gradient: linear-gradient(180deg, #000000 0%, #000000 100%);
             --topbar-gradient: linear-gradient(45deg, #023661 0%, #015f70 100%);
-            --accent-gradient: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+            --accent-gradient: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);
             --text-light: #e0e0e0;
             --text-dark: #090a0d;
             --card-bg: #ffffff;
@@ -32,6 +32,47 @@
             background: var(--bg-gradient);
             color: var(--text-dark);
             transition: margin-left 0.3s ease;
+        }
+
+        /* 2. Background Image Container */
+        .bg-image-container {
+            position: fixed;
+            /* इसे स्क्रीन पर फिक्स रखें */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* इसे सबसे पीछे (content के नीचे) रखें */
+            overflow: hidden;
+            /* extra image area को hide करें */
+        }
+
+        .bg-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* इमेज को पूरी तरह से कवर करने दें */
+            filter: brightness(0.6) grayscale(0.5);
+            /* 💡 थोड़ा डार्क और grayscale effect */
+        }
+
+        /* 3. White Faded Overlay Effect */
+        .bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* white-faded effect के लिए: white colour और थोड़ी transparency */
+            background-color: rgb(255 255 255 / 0%);
+
+            /* image के ऊपर, पर content के नीचे रहेगा */
+        }
+
+        .modal-backdrop {
+
+            z-index: 0 !important;
         }
 
         /* Sidebar */
@@ -68,7 +109,7 @@
             animation: fadeIn 1s ease-in-out;
         }
 
-        @keyframes fadeIn {
+        /* @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(-20px);
@@ -78,17 +119,16 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
+        } */
 
-        .sidebar .sidebar-header h3 {
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            margin-top: 20px;
-            color: #fdfdfd;
-            text-shadow: 0 0 5px #bcc4da;
-            letter-spacing: 1px;
-        }
+       .sidebar .sidebar-header .sidebar-logo {
+    height: 4.8rem;   /* पहले h3 का font-size 1.8rem था */
+    width: auto;      /* width auto ताकि aspect ratio सही रहे */
+    margin-bottom: 30px;
+    margin-top: 20px;
+    display: block;   /* image को block बना देंगे ताकि नीचे space मिले */
+    /* filter: drop-shadow(0 0 5px #bcc4da); पहले text-shadow था */
+}
 
         .sidebar-menu a {
             display: flex;
@@ -194,13 +234,18 @@
             padding: 90px 30px 30px;
             min-height: 100vh;
             transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1;
+            /* ... (बाकी content styles) ... */
+            color: var(--text-light);
         }
 
         .main-card {
-            color: white;
+            /* color: white; */
             text-align: center;
             font-size: 12px;
             font-weight: bold;
+            color: var(--text-dark);
 
         }
 
@@ -314,36 +359,21 @@
             background-color: rgba(255, 255, 255, 0.3);
             transform: rotate(90deg);
         }
-         .bg-image-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 0;
-    }
-
-    .bg-image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: brightness(0.6);
-    }
-
     </style>
 
     @yield('styles')
 </head>
 
 <body>
-
+    <div class="bg-image-container">
+        <img src="{{ asset('asset/bg2.jpg') }}" alt="Gym Background">
+        <div class="bg-overlay"></div>
+    </div>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Gym-Suvidha</h3>
+            <img src="{{ asset('asset/Logo.png') }}" alt="Gym-Suvidha Logo" class="sidebar-logo">
         </div>
-        <button class="btn-close d-lg-none sidebar-close-btn position-absolute top-0 end-0 m-2"
-            id="sidebar-close-btn">
+        <button class="btn-close d-lg-none sidebar-close-btn position-absolute top-0 end-0 m-2" id="sidebar-close-btn">
         </button>
 
 
@@ -358,8 +388,6 @@
             @if ($user && $role === 'superadmin')
                 <a href="{{ route('superadmin.dashboard') }}" class="active"><i class="bi bi-speedometer2"></i>
                     SuperAdmin Dashboard</a>
-
-
             @elseif($user && $role === 'owner')
                 <a class="nav-link" href="{{ route('gym.members.filter') }}">
                     <i class="bi bi-clock-history me-2"></i> Gym Dashboard
@@ -386,7 +414,7 @@
                 <a href="{{ route('gym.report') }}"><i class="bi bi-graph-up"></i> Reports</a>
 
                 <a href="{{ route('expenses.index') }}"><i class="bi bi-cash"></i> Expenses</a>
-                 <a href="{{ route('gym.members.history') }}"><i class="bi bi-cash"></i> Members History</a>
+                <a href="{{ route('gym.members.history') }}"><i class="bi bi-cash"></i> Members History</a>
             @endif
 
             {{-- Settings is accessible for both roles --}}
@@ -416,14 +444,13 @@
         <span class="welcome-text d-none d-md-block">
             Welcome, <strong>{{ Auth::user()->name ?? 'Admin' }}</strong>
         </span>
-        
+
     </div>
 
     <div class="content" id="main-content">
         <div class="main-card">
-            <!-- <div class="bg-image-container">
-    <img src="{{ asset('asset/gym-bg.jpg') }}" alt="Gym Background">
-</div> -->
+
+
 
             @yield('content')
         </div>

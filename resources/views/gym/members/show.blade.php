@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <h2 class="dashboard-heading fs-5 text-white"><i class="bi bi-eye me-2"></i> View Member</h2>
-        <a href="{{ route('gym.members.index') }}" class="btn   shadow-sm"  style="background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);">
+        <a href="{{ route('gym.members.index') }}" class="btn   shadow-sm"  style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%) ; color:#fff; ">
             <i class="bi bi-list me-1"></i> Members List
         </a>
     </div>

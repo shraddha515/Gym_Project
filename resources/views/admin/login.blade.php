@@ -53,14 +53,14 @@
         to { opacity: 1; transform: translateY(0);}
     }
 
-    .login-card h2 {
-        font-weight: 700;
-        font-size: 1.8rem;
-        margin-bottom: 30px;
-        color: #2a29ad;
-        text-shadow: 0 0 5px #f8c202;
-        letter-spacing: 1px;
-    }
+   .login-card .login-logo {
+    height: 3.8rem;   /* पहले h2 का font-size 1.8rem था */
+    width: auto;      /* auto ताकि aspect ratio सही रहे */
+    margin-bottom: 30px;
+    display: block;
+    /* filter: drop-shadow(0 0 5px #000000);  */
+}
+
 
     .form-control {
         background: rgba(255,255,255,0.9);
@@ -89,7 +89,7 @@
     }
 
     .btn-primary {
-        background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);;
+        background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);
         border: none;
         color: #000;
         font-weight: bold;
@@ -101,9 +101,9 @@
     }
 
     .btn-primary:hover {
-        background: #ffd43a;
+        background: #005a96;
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(248,194,2,0.6);
+        box-shadow: 0 8px 20px rgba(150, 213, 255, 0.795);
     }
 
     .alert-danger {
@@ -130,7 +130,7 @@
 </div>
 
 <div class="login-card">
-    <h2> Gym-Suvidha </h2>
+   <img src="{{ asset('asset/Logo_login.png') }}" alt="Gym-Suvidha Logo" class="login-logo">
 
     @if ($errors->any())
         <div class="alert alert-danger">

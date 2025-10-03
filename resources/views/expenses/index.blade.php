@@ -201,38 +201,28 @@
             /* Makes the close button white */
         }
 
-        /* Custom CSS for Mobile Expense Cards */
         .expenses-card-item {
+            border: 1px solid #ced4da;
             border-radius: 0.75rem;
-            border: 1px solid #e0e0e0;
-        }
-
-        .expenses-card-item .card-body {
-            padding: 1rem;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-word;
         }
 
         .expenses-card-item .text-primary {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--accent-gradient) !important;
+            font-size: 0.95rem;
         }
 
         .expenses-card-item .text-success {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1rem;
         }
 
-        .expenses-card-item .text-muted {
+        .expenses-card-item .text-muted,
+        .expenses-card-item p {
             font-size: 0.75rem;
-        }
-
-        /* Ensure buttons are properly aligned and sized */
-        .expenses-card-item .btn-sm {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
         }
     </style>
-    <div class="container py-4">
+    <div class="container py-4" style="min-width: 80vw;">
         <h3 class="mb-3">Gym Expenses</h3>
 
         {{-- Success/Error Messages --}}
@@ -268,9 +258,9 @@
             </div>
 
             <div class="btn-group-responsive">
-                <button class="btn btn-primary me-2" id="filterBtn">
+                {{-- <button class="btn btn-primary me-2" id="filterBtn">
                     <i class="bi bi-funnel"></i> Filter
-                </button>
+                </button> --}}
                 <a href="{{ route('expenses.index') }}" class="btn btn-outline-warning me-2">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
@@ -284,13 +274,66 @@
             </div>
         </div>
 
+
+
+        <!-- Category Modal -->
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Manage Categories</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="categoryForm" method="POST" action="{{ route('categories.store') }}">
+                            @csrf
+                            <div class="input-group mb-3">
+                                <input type="text" name="name" class="form-control" placeholder="New Category"
+                                    required>
+                                <button class="btn btn-success" type="submit">Add</button>
+                            </div>
+                        </form>
+
+                        <ul class="list-group" id="categoryList">
+                            @foreach ($categories as $cat)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ $cat->name }}
+                                    <form method="POST" action="{{ route('categories.destroy', $cat->id) }}"
+                                        onsubmit="return confirm('Delete this category?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
         <div class="row">
             {{-- Add Expense Button for Mobile and Desktop --}}
-            <div class="col-12 mb-3 d-flex justify-content-end">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+            <div class="col-12 mb-3 d-flex justify-content-end align-items-center">
+                <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
                     <i class="bi bi-plus-circle-fill me-2"></i>Add New Expense
                 </button>
+
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                    <i class="bi bi-tags-fill me-2"></i>Manage Categories
+                </button>
             </div>
+
+
+
 
             <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel"
                 aria-hidden="true">
@@ -303,12 +346,18 @@
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="{{ route('expenses.store') }}">
+                            <form method="POST" action="{{ route('expenses.store') }}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="category" class="form-label">Category</label>
-                                    <input type="text" id="category" name="category"
-                                        class="form-control form-control-sm" value="{{ old('category') }}" required>
+                                    <select name="category" class="form-control form-control-sm" required>
+                                        <option value="">Select Category</option>
+                                        @foreach ($categories as $cat)
+                                            <option value="{{ $cat->name }}"
+                                                {{ old('category') == $cat->name ? 'selected' : '' }}>{{ $cat->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
                                 </div>
                                 <div class="mb-3">
                                     <label for="amount" class="form-label">Amount</label>
@@ -321,11 +370,25 @@
                                         class="form-control form-control-sm"
                                         value="{{ old('expense_date', date('d-m-y')) }}" required>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="invoice_number" class="form-label">Invoice Number</label>
+                                    <input type="text" id="invoice_number" name="invoice_number"
+                                        class="form-control form-control-sm" value="{{ old('invoice_number') }}">
+                                </div>
+
                                 <div class="mb-3">
                                     <label for="payment_method" class="form-label">Payment Method</label>
                                     <input type="text" id="payment_method" name="payment_method"
                                         class="form-control form-control-sm" value="{{ old('payment_method') }}">
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="document" class="form-label">Upload Document (PDF only)</label>
+                                    <input type="file" id="document" name="document"
+                                        class="form-control form-control-sm" accept="application/pdf">
+                                </div>
+
                                 <div class="mb-3">
                                     <label for="description" class="form-label">Description</label>
                                     <textarea id="description" name="description" class="form-control form-control-sm" rows="2">{{ old('description') }}</textarea>
@@ -354,6 +417,7 @@
                                         <th scope="col">ID</th>
                                         <th scope="col">Date</th>
                                         <th scope="col">Category</th>
+                                        <th scope="col">Invoice No</th> <!-- ✅ New Column -->
                                         <th scope="col">Amount</th>
                                         <th scope="col">Payment</th>
                                         <th scope="col">Description</th>
@@ -366,11 +430,21 @@
                                             <td>{{ $e->id }}</td>
                                             <td>{{ $e->expense_date }}</td>
                                             <td>{{ $e->category }}</td>
+                                            <td>{{ $e->invoice_number ?? '-' }}</td> <!-- ✅ Show Invoice Number -->
                                             <td>{{ number_format($e->amount, 2) }}</td>
                                             <td>{{ $e->payment_method }}</td>
                                             <td class="text-truncate" style="max-width: 150px;">{{ $e->description }}
                                             </td>
                                             <td class="text-nowrap">
+                                                {{-- ✅ Download PDF button (if file uploaded) --}}
+                                                @if ($e->document)
+                                                    <a href="{{ asset('storage/app/public/' . $e->document) }}"
+                                                        class="btn btn-sm btn-outline-success" title="Download PDF"
+                                                        download>
+                                                        <i class="bi bi-file-earmark-pdf"></i>
+                                                    </a>
+                                                @endif
+
                                                 <a href="{{ route('expenses.edit', $e->id) }}"
                                                     class="btn btn-sm btn-outline-primary" title="Edit">
                                                     <i class="bi bi-pencil-square"></i>
@@ -398,6 +472,8 @@
                 </div>
             </div>
 
+
+            {{-- Mobile cards --}}
             <div class="col-12 d-block d-md-none">
                 <h5 class="mb-3">Expenses List <span class="badge bg-primary rounded-pill small ms-2">Total:
                         {{ number_format($total, 2) }}</span></h5>
@@ -412,8 +488,20 @@
                                 <span><i class="bi bi-calendar me-1"></i>{{ $e->expense_date }}</span>
                                 <span><i class="bi bi-credit-card me-1"></i>{{ $e->payment_method }}</span>
                             </div>
+
+                            {{-- ✅ Show Invoice Number --}}
+                            <p class="mt-1 mb-1 small"><strong>Invoice:</strong> {{ $e->invoice_number ?? '-' }}</p>
+
                             <p class="mt-2 mb-2 small text-secondary">{{ Str::limit($e->description, 100) }}</p>
                             <div class="d-flex justify-content-end gap-2 mt-3">
+                                {{-- ✅ PDF Download Button --}}
+                                @if ($e->document)
+                                    <a href="{{ asset('storage/app/public/' . $e->document) }}" class="btn btn-sm btn-outline-success"
+                                        download>
+                                        <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                                    </a>
+                                @endif
+
                                 <a href="{{ route('expenses.edit', $e->id) }}" class="btn btn-sm btn-outline-primary"><i
                                         class="bi bi-pencil-square me-1"></i>Edit</a>
                                 <form method="POST" action="{{ route('expenses.destroy', $e->id) }}"
@@ -462,14 +550,19 @@
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTbody = doc.querySelector('#expensesTable tbody');
                         tableContainer.querySelector('tbody').innerHTML = newTbody.innerHTML;
+                        const mobileContainer = document.querySelector('.d-block.d-md-none');
+                        const newMobileCards = doc.querySelector('.d-block.d-md-none');
+                        if (mobileContainer && newMobileCards) {
+                            mobileContainer.innerHTML = newMobileCards.innerHTML;
+                        }
                     });
             }
 
-            searchInput.addEventListener('keyup', fetchExpenses);
-            filterBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                fetchExpenses();
-            });
+            // Remove filter button listener
+            searchInput.addEventListener('input', fetchExpenses);
+            fromInput.addEventListener('change', fetchExpenses);
+            toInput.addEventListener('change', fetchExpenses);
+
         });
     </script>
 

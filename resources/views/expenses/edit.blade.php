@@ -87,7 +87,9 @@
                             <div class="alert alert-danger mb-3">{{ $errors->first() }}</div>
                         @endif
 
-                        <form method="POST" action="{{ route('expenses.update', $expense->id) }}">
+                        <form method="POST" action="{{ route('expenses.update', $expense->id) }}"
+                            enctype="multipart/form-data">
+
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
@@ -107,12 +109,38 @@
                                     class="form-control form-control-sm"
                                     value="{{ old('expense_date', $expense->expense_date) }}" required>
                             </div>
+
+                            <div class="mb-3">
+                                <label for="invoice_number" class="form-label">Invoice Number</label>
+                                <input type="text" id="invoice_number" name="invoice_number"
+                                    class="form-control form-control-sm"
+                                    value="{{ old('invoice_number', $expense->invoice_number) }}">
+                            </div>
+
                             <div class="mb-3">
                                 <label for="payment_method" class="form-label">Payment Method</label>
                                 <input type="text" id="payment_method" name="payment_method"
                                     class="form-control form-control-sm"
                                     value="{{ old('payment_method', $expense->payment_method) }}">
                             </div>
+
+                            <div class="mb-3">
+                                <label for="document" class="form-label">Upload Document (PDF)</label>
+                                <input type="file" id="document" name="document" class="form-control form-control-sm"
+                                    accept="application/pdf">
+
+                                {{-- Agar purana document uploaded hai to link show karo --}}
+                                @if (!empty($expense->document))
+                                    <p class="mt-2">
+                                        Current File:
+                                        <a href="{{ asset('storage/' . $expense->document) }}" target="_blank">
+                                            View / Download PDF
+                                        </a>
+                                    </p>
+                                    <input type="hidden" name="existing_document" value="{{ $expense->document }}">
+                                @endif
+                            </div>
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea id="description" name="description" class="form-control form-control-sm" rows="3">{{ old('description', $expense->description) }}</textarea>

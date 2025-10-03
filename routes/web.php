@@ -8,6 +8,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StaffMemberController;
 use App\Http\Controllers\MemberHistoryController;
+use App\Http\Controllers\CategoryController;
 // Login
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
@@ -81,6 +82,9 @@ Route::put('expenses/{id}/update', [ExpenseController::class, 'update'])->name('
 Route::post('expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 Route::get('expenses/expensesreport', [ExpenseController::class, 'expensesreport'])->name('expenses.expensesreport');
 Route::get('expenses/export/csv', [ExpenseController::class, 'exportCsv'])->name('expenses.export.csv');
+
+
+Route::resource('categories', CategoryController::class)->except(['show', 'edit', 'update']);
 
 // Staff Management
 Route::get('staff', [StaffMemberController::class, 'index'])->name('gym.staff.index');

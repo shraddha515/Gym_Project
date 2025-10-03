@@ -100,7 +100,7 @@
             }
         }
     </style>
-    <div class="container py-4 px-4">
+    <div class="container py-4 px-4"  style="min-width: 80vw;">
         <h2 class="mb-3 @if (!request()->has('pdf')) text-white @endif">Gym Reports</h2>
 
         @php
@@ -191,7 +191,7 @@
 
         <!-- Table Section -->
         <div class="card shadow-sm border-0">
-            <div class="card-header text-white" style="background: var(--accent-gradient);">
+            <div class="card-header text-white" style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">
                 <h5 class="mb-0">{{ ucfirst($type) }} Details</h5>
             </div>
 

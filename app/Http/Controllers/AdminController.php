@@ -101,24 +101,28 @@ class AdminController extends Controller
         // ----- Table Data -----
         $query = DB::table('members')
             ->where('gym_id', $gym_id);
+if ($filter === 'expiring') {
+    $query->whereDate('membership_valid_to', $today);
+} elseif ($filter === 'expired') {
+    $query->whereDate('membership_valid_to', '<', $today);
+} elseif ($filter === 'date_range' && $request->filled('from') && $request->filled('to')) {
+    $query->whereDate('membership_valid_to', '>=', $request->from)
+          ->whereDate('membership_valid_to', '<=', $request->to);
+}
 
-        if ($filter === 'expiring') {
-            $query->whereDate('membership_valid_to', $today);
-        } elseif ($filter === 'expired') {
-            $query->whereDate('membership_valid_to', '<', $today);
-        }
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%$search%")
-                    ->orWhere('last_name', 'like', "%$search%")
-                    ->orWhere('mobile_number', 'like', "%$search%")
-                    ->orWhere('aadhar_no', 'like', "%$search%");
-            });
-        }
+    // 🔥 Universal Search
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('first_name', 'like', "%$search%")
+              ->orWhere('last_name', 'like', "%$search%")
+              ->orWhere('mobile_number', 'like', "%$search%")
+              ->orWhere('aadhar_no', 'like', "%$search%");
+        });
+    }
 
-        $members = $query->orderBy('membership_valid_to', 'asc')->get();
+    $members = $query->orderBy('membership_valid_to', 'asc')->get();
 
         // ----- Cards Data -----
         $activeMembers = DB::table('members')
