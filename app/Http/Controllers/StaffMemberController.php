@@ -40,7 +40,8 @@ class StaffMemberController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:150',
-            'type' => 'required|string|in:Personal Trainer,Nutritionist,Admin',
+            'type' => 'required|string|in:Gym Owner / Director,General Manager,Receptionist / Front Desk Executive,Membership Consultant / Sales Executive,Personal Trainer,Group Fitness Instructor,Strength & Conditioning Coach,Nutritionist / Dietitian,Physiotherapist,Cleaning Staff / Housekeeping,Maintenance Staff,Accountant / Cashier,Marketing Executive,IT/Admin Support,Security Guard',
+
             'mobile_number' => 'required|string|max:20',
             'email' => 'nullable|email|max:150',
             'address' => 'nullable|string|max:255',
@@ -65,7 +66,8 @@ class StaffMemberController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:150',
-            'type' => 'required|string|in:Personal Trainer,Nutritionist,Admin',
+            'type' => 'required|string|in:Gym Owner / Director,General Manager,Receptionist / Front Desk Executive,Membership Consultant / Sales Executive,Personal Trainer,Group Fitness Instructor,Strength & Conditioning Coach,Nutritionist / Dietitian,Physiotherapist,Cleaning Staff / Housekeeping,Maintenance Staff,Accountant / Cashier,Marketing Executive,IT/Admin Support,Security Guard',
+
             'mobile_number' => 'required|string|max:20',
             'email' => 'nullable|email|max:150',
             'address' => 'nullable|string|max:255',

@@ -699,7 +699,7 @@
                         <ul class="list-group" id="installmentsList">
                             @foreach ($installments as $ins)
                                 <li class="list-group-item" data-id="{{ $ins->id }}">
-                                    <span>{{ $ins->title }} - ${{ number_format($ins->amount, 2) }}</span>
+                                    <span>{{ $ins->title }} - ₹{{ number_format($ins->amount, 2) }}</span>
                                     <button class="btn btn-danger remove-install">Delete</button>
                                 </li>
                             @endforeach
