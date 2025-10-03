@@ -489,7 +489,7 @@
             <form method="POST" id="renewForm" action="">
                 @csrf
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header" style="padding-top: 77px; ">
                         <h5 class="modal-title text-black" id="renewModalLabel">Renew Membership</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -535,8 +535,8 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Confirm Renew</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn " style="background:linear-gradient(45deg, #053d96 0%, #00a0c6 100%); color:white">Confirm Renew</button>
 
                         {{-- <button type="button" id="viewHistoryBtn" class="btn btn-info text-white">View History</button> --}}
                     </div>

@@ -24,7 +24,7 @@
 
     /* Add Gym Button */
     .btn-add-gym {
-        background-image: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+        background-image: linear-gradient(45deg, #023661 0%, #015f70 100%);
         color: white;
         font-weight: 500;
         border: none;
@@ -48,7 +48,7 @@
     .card-title {
         font-weight: 600;
         color: #f4f1f1;
-        background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+        background: linear-gradient(45deg, #023661 0%, #015f70 100%);
         padding: 10px 10px 10px 10px;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
@@ -62,7 +62,7 @@
     }
 
     .table-professional thead tr {
-        background: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+        background: linear-gradient(45deg, #023661 0%, #015f70 100%);
         color: white;
     }
 
@@ -124,11 +124,12 @@
     }
 
     .modal-header-gradient {
-        background-image: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+        background-image: linear-gradient(45deg, #023661 0%, #015f70 100%);
         color: white;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         border-bottom: none;
+        margin-top: 44px;
     }
 
     .btn-close-white {
@@ -156,7 +157,7 @@
     }
 
     .professional-btn {
-        background-image: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+        background-image: linear-gradient(45deg, #023661 0%, #015f70 100%);
         border: none;
         font-weight: 600;
         transition: all 0.3s ease;
@@ -166,6 +167,70 @@
         opacity: 0.9;
         transform: translateY(-1px);
     }
+
+    /* Cards */
+.member-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    background: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+.member-card:hover {
+    border-color: #3b82f6; /* theme highlight on hover */
+}
+.member-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+/* Fields inside card */
+.member-fields .list-group-item {
+    font-size: 0.82rem;
+    padding: 6px 8px;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+}
+.member-fields .list-group-item:active,
+.member-fields .list-group-item:focus {
+    background: #f0f9ff;
+    color: #111827;
+}
+
+/* Buttons */
+.btn-action {
+    font-size: 0.75rem;
+    padding: 4px 44px !important;
+    border-radius: 4px;
+    background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);
+    color: #fff;
+    border: none;
+    flex: 1;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.btn-action:hover {
+    color: #111827;
+    filter: brightness(110%);
+}
+.btn-action:active {
+    transform: scale(0.95);
+}
+
+/* Badge size fix */
+.badge {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+}
+
+/* Mobile tweak */
+@media (max-width: 768px) {
+    .member-fields .list-group-item span:first-child {
+        font-size: 0.85rem;
+    }
+}
+
 </style>
 @endsection
 <div class="container-fluid py-4">
@@ -233,7 +298,7 @@
 
 
                         <td>
-                            <button class="btn btn-sm btn-primary edit-btn"
+                            <button class="btn btn-sm  edit-btn"
                                 data-bs-toggle="modal"
                                 data-bs-target="#addEditGymModal"
                                 data-gym-id="{{ $gym->gym_id }}"
@@ -241,7 +306,7 @@
                                 data-email="{{ $gym->email }}"
                                 data-phone="{{ $gym->phone }}"
                                 data-address="{{ $gym->address }}"
-                                data-status="{{ $gym->status }}">
+                                data-status="{{ $gym->status }}"  style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%); color:white;">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </button>
 
@@ -266,6 +331,98 @@
         </div>
     </div>
 </div>
+
+
+
+{{-- Mobile Companies Cards --}}
+<div class="d-md-none" id="mobileCompaniesAccordion">
+    @forelse($gyms as $gym)
+        <div class="card mb-3 member-card">
+            <div class="card-header d-flex justify-content-between align-items-center p-2"
+                data-bs-toggle="collapse" data-bs-target="#companyCard{{ $gym->gym_id }}"
+                style="cursor:pointer;">
+                <span class="member-name">{{ $gym->company_name }}</span>
+                <i class="bi bi-chevron-down text-muted"></i>
+            </div>
+
+            <div class="collapse" id="companyCard{{ $gym->gym_id }}" data-bs-parent="#mobileCompaniesAccordion">
+                <div class="card-body p-2">
+                    <ul class="list-group list-group-flush member-fields">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>ID</span>
+                            <span>{{ $gym->gym_id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Email</span>
+                            <span>{{ $gym->email }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Phone</span>
+                            <span>{{ $gym->phone }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Address</span>
+                            <span>{{ $gym->address ?? '-' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Created</span>
+                            <span>{{ \Carbon\Carbon::parse($gym->created_at)->format('d M, Y') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Status</span>
+                            <span class="badge {{ $gym->status == 'Active' ? 'bg-success' : 'bg-danger' }}">
+                                {{ $gym->status }}
+                            </span>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex justify-content-between gap-1 mt-2">
+                        <button class="btn btn-action"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addEditGymModal"
+                            data-gym-id="{{ $gym->gym_id }}"
+                            data-company-name="{{ $gym->company_name }}"
+                            data-email="{{ $gym->email }}"
+                            data-phone="{{ $gym->phone }}"
+                            data-address="{{ $gym->address }}"
+                            data-status="{{ $gym->status }}">
+                            <i class="bi bi-pencil-square me-1"></i> Edit
+                        </button>
+
+                        <form action="{{ route('superadmin.deleteCompany', $gym->gym_id) }}" method="POST"
+                            onsubmit="return confirm('Are you sure?');">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-action">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="text-center text-muted py-4">No companies found.</div>
+    @endforelse
+</div>
+
+{{-- Collapse toggle script --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card-header[data-bs-toggle="collapse"]');
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                cards.forEach(c => {
+                    if (c !== this) {
+                        const target = document.querySelector(c.dataset.bsTarget);
+                        if (target.classList.contains('show')) {
+                            bootstrap.Collapse.getInstance(target).hide();
+                        }
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 {{-- Add/Edit Gym Modal --}}
 <div class="modal fade" id="addEditGymModal" tabindex="-1">
@@ -313,8 +470,8 @@
                         </select>
                     </div>
 
-
-                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Gym</button>
+ 
+                    <button type="submit" class="btn " id="submitBtn" style="background:linear-gradient(45deg, #023661 0%, #015f70 100%); color:white;">Add Gym</button>
                 </form>
             </div>
         </div>

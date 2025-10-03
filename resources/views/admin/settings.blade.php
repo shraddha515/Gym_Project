@@ -100,7 +100,7 @@
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header text-white"
-                                    style="background: linear-gradient(45deg, #023661 0%, #015f70 100%);">
+                                    style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);">
                                     <h5 class="modal-title">Add New Super Admin</h5>
                                     <button type="button" class="btn-close btn-close-white"
                                         data-bs-dismiss="modal"></button>
@@ -172,7 +172,7 @@
                                 <label class="form-label">Confirm Password</label>
                                 <input type="password" name="password_confirmation" class="form-control">
                             </div>
-                            <button type="submit" class="btn text-white w-50"
+                            <button type="submit" class="btn text-white w-83"
                                 style="background: linear-gradient(45deg, #053d96 0%, #00a0c6 100%);">Update Profile</button>
                         </form>
 
